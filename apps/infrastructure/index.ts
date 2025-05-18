@@ -1,4 +1,5 @@
-import * as pulumi from '@pulumi/pulumi'
+import { CommentsInfrastructure } from './comments'
 
-// Config
-const config = new pulumi.Config('comments')
+const comments = new CommentsInfrastructure('comments')
+
+export const clusterEndpoint = comments.clusterEndpoint
