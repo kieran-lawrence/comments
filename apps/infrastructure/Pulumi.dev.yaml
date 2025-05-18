@@ -1,0 +1,6 @@
+config:
+  aws:region: ap-southeast-2
+  comments:db-username: root
+  comments:db-password:
+    secure: AAABAMKoZBS6CVZl+t1JpFLXrjLCtTQQJjfCPwIjKOhVd3fgidPQCwh/fyfSHig=
+  comments:db-name: commentsdb
