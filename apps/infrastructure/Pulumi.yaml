@@ -1,0 +1,6 @@
+name: comments-infrastructure
+description: Infrastructure for the comments service
+runtime:
+  name: nodejs
+  options:
+    packagemanager: yarn
