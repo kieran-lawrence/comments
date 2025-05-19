@@ -61,6 +61,7 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             ],
         })
 
+        // Define & configure the Aurora cluster
         const cluster = new aws.rds.Cluster(`${name}-aurora-cluster`, {
             engine: 'aurora-postgresql',
             engineMode: 'provisioned',
