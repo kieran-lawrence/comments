@@ -4,3 +4,5 @@ config:
   comments:db-password:
     secure: AAABAMKoZBS6CVZl+t1JpFLXrjLCtTQQJjfCPwIjKOhVd3fgidPQCwh/fyfSHig=
   comments:db-name: commentsdb
+  comments:domain: codebykieran.com
+  comments:subdomain: api
