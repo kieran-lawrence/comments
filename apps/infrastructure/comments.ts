@@ -13,9 +13,9 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
         super('CommentsInfrastructure', name, {}, opts)
 
         const configObject: ConfigType = {
-            auroraDbName: config.require('db-name'),
-            auroraDbUsername: config.require('db-username'),
-            auroraDbPassword: config.requireSecret('db-password'),
+            dbName: config.require('db-name'),
+            dbUsername: config.require('db-username'),
+            dbPassword: config.requireSecret('db-password'),
             domain: config.require('domain'),
             subdomain: config.require('subdomain'),
         }
@@ -28,7 +28,7 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             enableDnsSupport: true,
         })
 
-        // Create subnets for the Aurora cluster
+        // Create subnets for the RDS cluster
         const subnetA = new aws.ec2.Subnet(`${name}-subnet-a`, {
             vpcId: vpc.id,
             cidrBlock: '10.0.1.0/24',
@@ -40,19 +40,19 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             availabilityZone: 'ap-southeast-2b',
         })
 
-        // Create a subnet group for the Aurora cluster
+        // Create a subnet group for the RDS cluster
         const subnetGroup = new aws.rds.SubnetGroup(`${name}-subnet-group`, {
             subnetIds: [subnetA.id, subnetB.id],
         })
 
-        // Security Group for Aurora
-        const securityGroup = new aws.ec2.SecurityGroup(`${name}-aurora-sg`, {
+        // Security Group for RDS
+        const securityGroup = new aws.ec2.SecurityGroup(`${name}-db-sg`, {
             vpcId: vpc.id,
             ingress: [
                 {
                     protocol: 'tcp',
-                    fromPort: 3306,
-                    toPort: 3306,
+                    fromPort: 5432,
+                    toPort: 5432,
                     cidrBlocks: ['0.0.0.0/0'],
                 },
             ],
@@ -66,20 +66,21 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             ],
         })
 
-        // Define & configure the Aurora cluster
-        const cluster = new aws.rds.Cluster(`${name}-aurora-cluster`, {
-            engine: 'aurora-postgresql',
-            engineMode: 'provisioned',
-            databaseName: configObject.auroraDbName,
-            masterUsername: configObject.auroraDbUsername,
-            masterPassword: configObject.auroraDbPassword,
+        // Add RDS PostgreSQL instance
+        const dbInstance = new aws.rds.Instance(`${name}-postgres-instance`, {
+            allocatedStorage: 20,
+            engine: 'postgres',
+            engineVersion: '17.5',
+            instanceClass: 'db.t3.micro',
+            dbName: configObject.dbName,
+            username: configObject.dbUsername,
+            password: configObject.dbPassword,
             dbSubnetGroupName: subnetGroup.name,
             vpcSecurityGroupIds: [securityGroup.id],
             skipFinalSnapshot: true,
-            serverlessv2ScalingConfiguration: {
-                minCapacity: 2,
-                maxCapacity: 2,
-            },
+            storageEncrypted: false,
+            multiAz: false,
+            autoMinorVersionUpgrade: true,
         })
 
         // Create the API Gateway
@@ -142,8 +143,8 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             },
             origins: [
                 {
-                    domainName: commentsDomain.domainNameConfiguration.apply(
-                        (cfg) => cfg.targetDomainName,
+                    domainName: api.apiEndpoint.apply((endpoint) =>
+                        endpoint.replace('https://', ''),
                     ),
                     originId: apiOriginName,
                     customOriginConfig: {
@@ -184,7 +185,7 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             apiMappingKey: '',
         })
 
-        this.clusterEndpoint = cluster.endpoint
+        this.clusterEndpoint = dbInstance.endpoint
         this.apiUrl = pulumi.interpolate`https://${domainName}/`
         this.cdnUrl = cdn.domainName
     }
