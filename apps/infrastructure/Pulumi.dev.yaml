@@ -1,8 +1,8 @@
 config:
   aws:region: ap-southeast-2
   comments:db-username: root
-  comments:db-password:
-    secure: AAABAMKoZBS6CVZl+t1JpFLXrjLCtTQQJjfCPwIjKOhVd3fgidPQCwh/fyfSHig=
   comments:db-name: commentsdb
   comments:domain: codebykieran.com
   comments:subdomain: api
+  comments:db-password:
+    secure: AAABADTsdJmWK4Fmy4E5MIFVLO8B12HT7ow5olvs/gwCNwa48pPBy+HNoVmEiQQ=
