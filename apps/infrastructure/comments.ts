@@ -1,6 +1,5 @@
 import * as pulumi from '@pulumi/pulumi'
 import * as aws from '@pulumi/aws'
-
 import { ConfigType } from './utils/types'
 const config = new pulumi.Config('comments')
 
@@ -8,6 +7,10 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
     clusterEndpoint: pulumi.Output<string>
     apiUrl: pulumi.Output<string>
     cdnUrl: pulumi.Output<string>
+    validationName: pulumi.Output<string>
+    validationType: pulumi.Output<string>
+    validationValue: pulumi.Output<string>
+    route53NameServers: pulumi.Output<string[]>
 
     constructor(name: string, opts?: pulumi.ComponentResourceOptions) {
         super('CommentsInfrastructure', name, {}, opts)
@@ -95,34 +98,53 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             autoDeploy: true,
         })
 
-        // Request existing certificate from ACM
-        // Cloudfront requires the certificate to be in the `us-east-1` region
-        const certificate = aws.acm.getCertificate(
+        // Create a Route53 zone for the domain
+        const zone = new aws.route53.Zone(`${name}-zone`, {
+            name: domainName,
+        })
+
+        const eastRegionProvider = new aws.Provider(
+            `${name}-cert-region-provider`,
             {
-                domain: '*.codebykieran.com',
-                statuses: ['ISSUED'],
-                mostRecent: true,
-            },
-            {
-                provider: new aws.Provider(`${name}-cert-region-provider`, {
-                    region: 'us-east-1',
-                }),
+                region: 'us-east-1',
             },
         )
-        // Get the ARN of the certificate
-        const certificateArn = certificate.then((cert) => cert.arn)
 
-        // Create a domain for the HTTP API
-        const commentsDomain = new aws.apigatewayv2.DomainName(
-            `${name}-custom-domain`,
+        // Create a certificate for the domain
+        const certificate = new aws.acm.Certificate(
+            `${name}-certificate`,
             {
                 domainName,
-                domainNameConfiguration: {
-                    certificateArn,
-                    endpointType: 'REGIONAL',
-                    securityPolicy: 'TLS_1_2',
-                },
+                validationMethod: 'DNS',
             },
+            {
+                provider: eastRegionProvider,
+            },
+        )
+
+        // Create a Route53 record for certificate validation
+        const routeRecord = new aws.route53.Record(
+            `${name}-route-53-record`,
+            {
+                zoneId: zone.zoneId,
+                name: certificate.domainValidationOptions[0].resourceRecordName,
+                type: certificate.domainValidationOptions[0].resourceRecordType,
+                records: [
+                    certificate.domainValidationOptions[0].resourceRecordValue,
+                ],
+                ttl: 300,
+            },
+            { provider: eastRegionProvider },
+        )
+
+        // Validate the certificate using the Route53 record
+        const certValidation = new aws.acm.CertificateValidation(
+            `${name}-certificate-validation`,
+            {
+                certificateArn: certificate.arn,
+                validationRecordFqdns: [routeRecord.fqdn],
+            },
+            { provider: eastRegionProvider },
         )
 
         // Set up CDN
@@ -137,7 +159,7 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
                 },
             },
             viewerCertificate: {
-                acmCertificateArn: certificateArn,
+                acmCertificateArn: certValidation.certificateArn,
                 sslSupportMethod: 'sni-only',
                 minimumProtocolVersion: 'TLSv1.2_2021',
             },
@@ -156,7 +178,15 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
                 },
             ],
             defaultCacheBehavior: {
-                allowedMethods: ['GET', 'HEAD'],
+                allowedMethods: [
+                    'HEAD',
+                    'DELETE',
+                    'POST',
+                    'GET',
+                    'OPTIONS',
+                    'PUT',
+                    'PATCH',
+                ],
                 cachedMethods: ['GET', 'HEAD'],
                 targetOriginId: apiOriginName,
                 viewerProtocolPolicy: 'redirect-to-https',
@@ -177,16 +207,29 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             },
         })
 
-        // Link the API Gateway to the custom domain
-        new aws.apigatewayv2.ApiMapping(`${name}-api-mapping`, {
-            apiId: api.id,
-            domainName: commentsDomain.domainName,
-            stage: '$default',
-            apiMappingKey: '',
+        // Create a Ipv4 Route53 record for the custom domain
+        new aws.route53.Record(`${name}-api-record-A`, {
+            name: domainName,
+            zoneId: zone.zoneId,
+            type: 'A',
+            aliases: [
+                {
+                    name: cdn.domainName,
+                    zoneId: cdn.hostedZoneId,
+                    evaluateTargetHealth: false,
+                },
+            ],
         })
 
         this.clusterEndpoint = dbInstance.endpoint
         this.apiUrl = pulumi.interpolate`https://${domainName}/`
         this.cdnUrl = cdn.domainName
+        this.validationName =
+            certificate.domainValidationOptions[0].resourceRecordName
+        this.validationType =
+            certificate.domainValidationOptions[0].resourceRecordType
+        this.validationValue =
+            certificate.domainValidationOptions[0].resourceRecordValue
+        this.route53NameServers = zone.nameServers
     }
 }

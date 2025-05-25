@@ -5,4 +5,4 @@ config:
   comments:domain: codebykieran.com
   comments:subdomain: api
   comments:db-password:
-    secure: AAABADTsdJmWK4Fmy4E5MIFVLO8B12HT7ow5olvs/gwCNwa48pPBy+HNoVmEiQQ=
+    secure: AAABAF8B7XEXxTF6PyZbmOTUGznYb6oBo5NfF+CY0u07kwT1yjM8t7keaQk/O6U=
