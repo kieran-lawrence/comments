@@ -1,6 +1,8 @@
 import * as pulumi from '@pulumi/pulumi'
 import * as aws from '@pulumi/aws'
 import { ConfigType } from './utils/types'
+import { LambdaFunction } from './utils/common-infrastructure/comments-lambdas'
+
 const config = new pulumi.Config('comments')
 
 export class CommentsInfrastructure extends pulumi.ComponentResource {
@@ -48,6 +50,32 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             subnetIds: [subnetA.id, subnetB.id],
         })
 
+        // Create an Internet Gateway to allow internet access for the VPC
+        const igw = new aws.ec2.InternetGateway(`${name}-igw`, {
+            vpcId: vpc.id,
+        })
+
+        // Create a route table with a route to the Internet Gateway to allow public access
+        const publicRouteTable = new aws.ec2.RouteTable(`${name}-public-rt`, {
+            vpcId: vpc.id,
+            routes: [
+                {
+                    cidrBlock: '0.0.0.0/0',
+                    gatewayId: igw.id,
+                },
+            ],
+        })
+
+        // Associate the route table with each subnet
+        new aws.ec2.RouteTableAssociation(`${name}-subnet-a-assoc`, {
+            subnetId: subnetA.id,
+            routeTableId: publicRouteTable.id,
+        })
+        new aws.ec2.RouteTableAssociation(`${name}-subnet-b-assoc`, {
+            subnetId: subnetB.id,
+            routeTableId: publicRouteTable.id,
+        })
+
         // Security Group for RDS
         const securityGroup = new aws.ec2.SecurityGroup(`${name}-db-sg`, {
             vpcId: vpc.id,
@@ -86,9 +114,81 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             autoMinorVersionUpgrade: true,
         })
 
+        // IAM role for the Lambda to write to Cloudwatch
+        const lambdaRole = new aws.iam.Role(`${name}-lambda-role`, {
+            assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
+                Service: 'lambda.amazonaws.com',
+            }),
+        })
+        new aws.iam.RolePolicyAttachment(`${name}-lambda-logs`, {
+            role: lambdaRole.name,
+            policyArn: aws.iam.ManagedPolicies.AWSLambdaBasicExecutionRole,
+        })
+
+        // Allow the Lambda to connect to the DB cluster
+        new aws.iam.RolePolicy(`${name}-lambda-vpc-policy`, {
+            role: lambdaRole.id,
+            policy: {
+                Version: '2012-10-17',
+                Statement: [
+                    {
+                        Effect: 'Allow',
+                        Action: [
+                            'ec2:CreateNetworkInterface',
+                            'ec2:DescribeNetworkInterfaces',
+                            'ec2:DeleteNetworkInterface',
+                        ],
+                        Resource: '*',
+                    },
+                ],
+            },
+        })
+
         // Create the API Gateway
         const api = new aws.apigatewayv2.Api(`${name}-apigateway`, {
             protocolType: 'HTTP',
+        })
+
+        // GET /comments Lambda
+        new LambdaFunction(name, 'get-comments', {
+            lambdaRole,
+            subnetIds: pulumi.output([subnetA.id, subnetB.id]),
+            securityGroupId: securityGroup.id,
+            config: configObject,
+            dbHost: dbInstance.address,
+            api,
+            routeArgs: {
+                requestType: 'GET',
+                routeKey: '/comments',
+            },
+        })
+
+        // POST /comments Lambda
+        new LambdaFunction(name, 'post-comments', {
+            lambdaRole,
+            subnetIds: pulumi.output([subnetA.id, subnetB.id]),
+            securityGroupId: securityGroup.id,
+            config: configObject,
+            dbHost: dbInstance.address,
+            api,
+            routeArgs: {
+                requestType: 'POST',
+                routeKey: '/comments',
+            },
+        })
+
+        // POST /migrations Lambda
+        new LambdaFunction(name, 'post-migrations', {
+            lambdaRole,
+            subnetIds: pulumi.output([subnetA.id, subnetB.id]),
+            securityGroupId: securityGroup.id,
+            config: configObject,
+            dbHost: dbInstance.address,
+            api,
+            routeArgs: {
+                requestType: 'POST',
+                routeKey: '/migrations',
+            },
         })
 
         // Create default stage
