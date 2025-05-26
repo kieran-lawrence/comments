@@ -9,6 +9,7 @@ export interface LambdaArgs {
     config: ConfigType
     dbHost: pulumi.Output<string>
     api: aws.apigatewayv2.Api
+    authorizerId: pulumi.Output<string>
     routeArgs: {
         requestType: 'GET' | 'POST'
         routeKey: string
@@ -38,6 +39,7 @@ export class LambdaFunction extends pulumi.ComponentResource {
             dbHost,
             api,
             routeArgs,
+            authorizerId,
         } = this.args
 
         // Create a Lambda function for the specified route
@@ -82,6 +84,8 @@ export class LambdaFunction extends pulumi.ComponentResource {
             apiId: api.id,
             routeKey: `${routeArgs.requestType} ${routeArgs.routeKey}`, // i.e. POST /comments
             target: pulumi.interpolate`integrations/${integration.id}`,
+            authorizerId,
+            authorizationType: 'CUSTOM',
         })
 
         // Allow the lambda to be invoked by API Gateway

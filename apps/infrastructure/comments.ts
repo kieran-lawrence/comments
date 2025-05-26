@@ -23,6 +23,7 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             dbPassword: config.requireSecret('db-password'),
             domain: config.require('domain'),
             subdomain: config.require('subdomain'),
+            apiKey: config.requireSecret('api-key'),
         }
         const domainName = pulumi.interpolate`${configObject.subdomain}.${configObject.domain}`
 
@@ -149,6 +150,45 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             protocolType: 'HTTP',
         })
 
+        // Create the Lambda Authoriser function
+        const authoriserLambda = new aws.lambda.Function(
+            `${name}-authoriser-lambda`,
+            {
+                runtime: aws.lambda.Runtime.NodeJS22dX,
+                code: new pulumi.asset.AssetArchive({
+                    '.': new pulumi.asset.FileArchive('./dist'),
+                }),
+                handler: 'authoriser.handler',
+                role: lambdaRole.arn,
+                environment: {
+                    variables: {
+                        API_KEY: configObject.apiKey,
+                    },
+                },
+            },
+        )
+
+        // Attach Lambda permission for API Gateway to invoke the authoriser
+        new aws.lambda.Permission(`${name}-apigateway-authoriser-permission`, {
+            action: 'lambda:InvokeFunction',
+            function: authoriserLambda.name,
+            principal: 'apigateway.amazonaws.com',
+        })
+
+        // Create the Lambda Authorizer for the HTTP API
+        const authoriser = new aws.apigatewayv2.Authorizer(
+            `${name}-authoriser`,
+            {
+                apiId: api.id,
+                authorizerType: 'REQUEST',
+                authorizerUri: pulumi.interpolate`arn:aws:apigateway:${aws.config.region}:lambda:path/2015-03-31/functions/${authoriserLambda.arn}/invocations`,
+                identitySources: ['$request.header.x-api-key'],
+                name: `${name}-authoriser`,
+                authorizerPayloadFormatVersion: '2.0',
+                enableSimpleResponses: true,
+            },
+        )
+
         // GET /comments Lambda
         new LambdaFunction(name, 'get-comments', {
             lambdaRole,
@@ -161,6 +201,7 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
                 requestType: 'GET',
                 routeKey: '/comments',
             },
+            authorizerId: authoriser.id,
         })
 
         // POST /comments Lambda
@@ -175,6 +216,7 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
                 requestType: 'POST',
                 routeKey: '/comments',
             },
+            authorizerId: authoriser.id,
         })
 
         // POST /migrations Lambda
@@ -189,6 +231,7 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
                 requestType: 'POST',
                 routeKey: '/migrations',
             },
+            authorizerId: authoriser.id,
         })
 
         // Create default stage
@@ -301,6 +344,7 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
                         'Caller',
                         'Content-Type',
                         'Origin',
+                        'x-api-key',
                     ],
                 },
                 compress: true,
