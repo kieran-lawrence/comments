@@ -3,9 +3,18 @@
     "version": "1.0.0",
     "main": "index.ts",
     "license": "MIT",
+    "scripts": {
+        "build": "esbuild ./lambdas/*.ts --bundle --platform=node --target=node20 --outdir=dist && cp -r ./drizzle ./dist/migrations"
+    },
     "dependencies": {
         "@pulumi/aws": "^6.80.0",
         "@pulumi/awsx": "^2.21.1",
-        "prisma": "^6.8.2"
+        "drizzle-orm": "^0.43.1",
+        "pg": "^8.16.0"
+    },
+    "devDependencies": {
+        "@types/pg": "^8.15.2",
+        "drizzle-kit": "^0.31.1",
+        "esbuild": "^0.25.4"
     }
 }
