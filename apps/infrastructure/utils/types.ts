@@ -6,4 +6,5 @@ export type ConfigType = {
     dbPassword: Output<string>
     domain: string
     subdomain: string
+    apiKey: Output<string>
 }

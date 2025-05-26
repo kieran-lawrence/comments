@@ -6,3 +6,5 @@ config:
   comments:subdomain: api
   comments:db-password:
     secure: AAABAF8B7XEXxTF6PyZbmOTUGznYb6oBo5NfF+CY0u07kwT1yjM8t7keaQk/O6U=
+  comments:api-key:
+    secure: AAABAAykhYE4rVX5EtUgsmjIRGmOOP4S2rvY2BlHudlInG5qx5YFVeoEOw==
