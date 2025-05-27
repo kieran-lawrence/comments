@@ -26,10 +26,10 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
         },
     })
 
-    const body = event.body && JSON.parse(event.body)
-    const { storyId, userId, content, status } = body
-
     try {
+        const body = event.body && JSON.parse(event.body)
+        const { storyId, userId, content, status } = body
+
         const result = await db.insert(comments).values({
             storyId,
             userId,

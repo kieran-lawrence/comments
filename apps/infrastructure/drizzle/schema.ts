@@ -68,7 +68,8 @@ export const usersRelations = relations(users, ({ one }) => ({
 }))
 
 export const stories = commentsSchema.table('stories', {
-    id: text('id').primaryKey(),
+    id: serial('id').primaryKey(),
+    articleId: text('article_id').notNull(),
     url: text('url').notNull(),
     author: text('author').notNull(),
     createdAt: timestamp('created_at').defaultNow(),
@@ -80,7 +81,7 @@ export const stories = commentsSchema.table('stories', {
 
 export const comments = commentsSchema.table('comments', {
     id: serial('id').primaryKey(),
-    storyId: text('story_id')
+    storyId: serial('story_id')
         .notNull()
         .references(() => stories.id),
     userId: uuid('user_id')
@@ -166,6 +167,6 @@ export const userPreferences = commentsSchema.table('user_preferences', {
     showBadges: boolean('show_badges').default(true),
     notifyOnReply: boolean('notify_on_reply').default(true),
     notifyOnFeatured: boolean('notify_on_featured').default(true),
-    notifyOnMention: boolean('notify_on_mention').default(true),
+    notifyOnReview: boolean('notify_on_mention').default(true),
     updatedAt: timestamp('updated_at').defaultNow(),
 })
