@@ -1,0 +1,22 @@
+{
+    "name": "api",
+    "version": "1.0.0",
+    "main": "src/index.ts",
+    "license": "MIT",
+    "private": true,
+    "scripts": {
+        "start": "node dist/index.js",
+        "build": "esbuild src/index.ts --bundle --platform=node --target=node20 --outfile=dist/index.js",
+        "docker-build": "docker buildx build --platform linux/amd64 -t comments:latest .",
+        "docker-tag": "AWS_PROFILE=kieran-personal docker tag comments:latest 070410863296.dkr.ecr.ap-southeast-2.amazonaws.com/comments-ecr-repo-8ead588:latest",
+        "docker-push": "AWS_PROFILE=kieran-personal docker push 070410863296.dkr.ecr.ap-southeast-2.amazonaws.com/comments-ecr-repo-8ead588:latest",
+        "dev": "docker run -p 6688:80 comments:latest"
+    },
+    "dependencies": {
+        "express": "^5.1.0"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.2",
+        "esbuild": "^0.25.5"
+    }
+}
