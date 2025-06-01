@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Site {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  user      User[]
+}
+
+model User {
+  id                   Int                    @id @default(autoincrement())
+  name                 String
+  roles                Role                   @default(USER)
+  createdAt            DateTime               @default(now())
+  site                 Site                   @relation(fields: [siteId], references: [id])
+  siteId               Int
+  stories              Stories[]
+  comments             Comment[]
+  commentStatusChanges CommentStatusChanges[]
+}
+
+model Stories {
+  id        Int                   @id @default(autoincrement())
+  title     String
+  content   String
+  status    StoryCommentingStatus @default(OPEN)
+  createdAt DateTime              @default(now())
+  author    User                  @relation(fields: [authorId], references: [id])
+  authorId  Int
+  comments  Comment[]
+}
+
+model Comment {
+  id            Int                    @id @default(autoincrement())
+  content       String
+  status        CommentStatus          @default(PENDING)
+  createdAt     DateTime               @default(now())
+  story         Stories                @relation(fields: [storyId], references: [id])
+  storyId       Int
+  author        User                   @relation(fields: [authorId], references: [id])
+  authorId      Int
+  statusChanges CommentStatusChanges[]
+}
+
+model CommentStatusChanges {
+  id            Int                   @id @default(autoincrement())
+  comment       Comment               @relation(fields: [commentId], references: [id])
+  commentId     Int
+  oldStatus     CommentStatus
+  newStatus     CommentStatus
+  changedBy     CommentStatusChangeBy @default(SYSTEM)
+  changedByUser User?                 @relation(fields: [changedById], references: [id])
+  changedById   Int?
+  changedReason String?
+  changedAt     DateTime              @default(now())
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum StoryCommentingStatus {
+  OPEN
+  CLOSED
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  FLAGGED
+}
+
+enum CommentStatusChangeBy {
+  USER
+  COMMUNITY
+  SYSTEM
+}
