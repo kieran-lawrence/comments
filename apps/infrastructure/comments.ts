@@ -1,7 +1,6 @@
 import * as pulumi from '@pulumi/pulumi'
 import * as aws from '@pulumi/aws'
 import { ConfigType } from './utils/types'
-import { LambdaFunction } from './utils/common-infrastructure/comments-lambdas'
 
 const config = new pulumi.Config('comments')
 
@@ -13,6 +12,8 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
     validationType: pulumi.Output<string>
     validationValue: pulumi.Output<string>
     route53NameServers: pulumi.Output<string[]>
+    ecsPublicIp: pulumi.Output<string>
+    ecrRepositoryUrl: pulumi.Output<string>
 
     constructor(name: string, opts?: pulumi.ComponentResourceOptions) {
         super('CommentsInfrastructure', name, {}, opts)
@@ -77,15 +78,40 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             routeTableId: publicRouteTable.id,
         })
 
-        // Security Group for RDS
-        const securityGroup = new aws.ec2.SecurityGroup(`${name}-db-sg`, {
+        // Security Groups for RDS and ECS
+        const ecsSecurityGroup = new aws.ec2.SecurityGroup(`${name}-ecs-sg`, {
+            vpcId: vpc.id,
+            ingress: [
+                {
+                    protocol: 'tcp',
+                    fromPort: 80,
+                    toPort: 80,
+                    cidrBlocks: ['0.0.0.0/0'],
+                },
+                // { // Uncomment to allow SSH access to the ECS instance
+                //     protocol: 'tcp',
+                //     fromPort: 22,
+                //     toPort: 22,
+                //     cidrBlocks: ['0.0.0.0/0'],
+                // },
+            ],
+            egress: [
+                {
+                    protocol: '-1',
+                    fromPort: 0,
+                    toPort: 0,
+                    cidrBlocks: ['0.0.0.0/0'],
+                },
+            ],
+        })
+        const dbSecurityGroup = new aws.ec2.SecurityGroup(`${name}-db-sg`, {
             vpcId: vpc.id,
             ingress: [
                 {
                     protocol: 'tcp',
                     fromPort: 5432,
                     toPort: 5432,
-                    cidrBlocks: ['0.0.0.0/0'],
+                    securityGroups: [ecsSecurityGroup.id], // Allow ECS security group to access RDS
                 },
             ],
             egress: [
@@ -108,144 +134,166 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             username: configObject.dbUsername,
             password: configObject.dbPassword,
             dbSubnetGroupName: subnetGroup.name,
-            vpcSecurityGroupIds: [securityGroup.id],
+            vpcSecurityGroupIds: [dbSecurityGroup.id],
             skipFinalSnapshot: true,
             storageEncrypted: false,
             multiAz: false,
             autoMinorVersionUpgrade: true,
         })
 
-        // IAM role for the Lambda to write to Cloudwatch
-        const lambdaRole = new aws.iam.Role(`${name}-lambda-role`, {
+        // ECS Cluster
+        const ecsCluster = new aws.ecs.Cluster(`${name}-ecs-cluster`)
+
+        // IAM Role for ECS Instance
+        const ecsInstanceRole = new aws.iam.Role(`${name}-ecs-instance-role`, {
             assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-                Service: 'lambda.amazonaws.com',
+                Service: 'ec2.amazonaws.com',
             }),
         })
-        new aws.iam.RolePolicyAttachment(`${name}-lambda-logs`, {
-            role: lambdaRole.name,
-            policyArn: aws.iam.ManagedPolicies.AWSLambdaBasicExecutionRole,
+        new aws.iam.RolePolicyAttachment(`${name}-ecs-instance-policy`, {
+            role: ecsInstanceRole.name,
+            policyArn:
+                'arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role',
         })
 
-        // Allow the Lambda to connect to the DB cluster
-        new aws.iam.RolePolicy(`${name}-lambda-vpc-policy`, {
-            role: lambdaRole.id,
-            policy: {
-                Version: '2012-10-17',
-                Statement: [
+        // Instance Profile
+        const ecsInstanceProfile = new aws.iam.InstanceProfile(
+            `${name}-ecs-instance-profile`,
+            {
+                role: ecsInstanceRole.name,
+            },
+        )
+
+        // ECS Instance
+        const ecsInstance = new aws.ec2.Instance(`${name}-ecs-instance`, {
+            // Fetches the latest Amazon ECS-optimized AMI
+            ami: aws.ec2
+                .getAmi({
+                    filters: [
+                        {
+                            name: 'name',
+                            values: ['amzn2-ami-ecs-hvm-*-x86_64-ebs'],
+                        },
+                        { name: 'owner-alias', values: ['amazon'] },
+                    ],
+                    mostRecent: true,
+                })
+                .then((ami) => ami.id),
+            instanceType: 't3.micro',
+            subnetId: subnetA.id,
+            vpcSecurityGroupIds: [ecsSecurityGroup.id],
+            iamInstanceProfile: ecsInstanceProfile.name,
+            keyName: 'my-key-pair',
+            userData: ecsCluster.name.apply(
+                (clusterName) =>
+                    `#!/bin/bash\necho ECS_CLUSTER=${clusterName} >> /etc/ecs/ecs.config`, // Runs on instance startup, configures the ECS agent to join ECS cluster
+            ),
+            associatePublicIpAddress: true,
+            tags: { Name: `${name}-ecs-instance` },
+        })
+
+        // ECS Task Execution Role
+        const ecsTaskExecutionRole = new aws.iam.Role(
+            `${name}-ecs-task-exec-role`,
+            {
+                assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
+                    Service: 'ecs-tasks.amazonaws.com',
+                }),
+            },
+        )
+        new aws.iam.RolePolicyAttachment(`${name}-ecs-task-exec-policy`, {
+            role: ecsTaskExecutionRole.name,
+            policyArn:
+                'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy',
+        })
+
+        // ECR Repository
+        const ecrRepo = new aws.ecr.Repository(`${name}-ecr-repo`)
+
+        // Get the Container image URI
+        const imageUri = pulumi.interpolate`${ecrRepo.repositoryUrl}:latest`
+
+        // ECS Task Definition
+        const taskDefinition = new aws.ecs.TaskDefinition(`${name}-task-def`, {
+            family: `${name}-family`,
+            cpu: '256',
+            memory: '512',
+            networkMode: 'bridge',
+            requiresCompatibilities: ['EC2'],
+            executionRoleArn: ecsTaskExecutionRole.arn,
+            containerDefinitions: pulumi
+                .output([
                     {
-                        Effect: 'Allow',
-                        Action: [
-                            'ec2:CreateNetworkInterface',
-                            'ec2:DescribeNetworkInterfaces',
-                            'ec2:DeleteNetworkInterface',
+                        name: 'app',
+                        image: imageUri,
+                        essential: true,
+                        portMappings: [{ containerPort: 80, hostPort: 80 }],
+                        environment: [
+                            { name: 'DB_USER', value: configObject.dbUsername },
+                            {
+                                name: 'DB_PASSWORD',
+                                value: configObject.dbPassword,
+                            },
+                            { name: 'DB_NAME', value: configObject.dbName },
+                            { name: 'API_KEY', value: configObject.apiKey },
                         ],
-                        Resource: '*',
+                    },
+                ])
+                .apply(JSON.stringify),
+        })
+
+        // ALB
+        const alb = new aws.lb.LoadBalancer(`${name}-alb`, {
+            internal: false,
+            loadBalancerType: 'application',
+            securityGroups: [ecsSecurityGroup.id],
+            subnets: [subnetA.id, subnetB.id],
+        })
+
+        // Target Group
+        const targetGroup = new aws.lb.TargetGroup(`${name}-tg`, {
+            port: 80,
+            protocol: 'HTTP',
+            vpcId: vpc.id,
+            targetType: 'instance',
+            healthCheck: { path: '/' },
+        })
+
+        // Listener
+        const listener = new aws.lb.Listener(`${name}-listener`, {
+            loadBalancerArn: alb.arn,
+            port: 80,
+            protocol: 'HTTP',
+            defaultActions: [
+                { type: 'forward', targetGroupArn: targetGroup.arn },
+            ],
+        })
+
+        // ECS Service with ALB
+        new aws.ecs.Service(
+            `${name}-ecs-service`,
+            {
+                cluster: ecsCluster.arn,
+                taskDefinition: taskDefinition.arn,
+                desiredCount: 1,
+                launchType: 'EC2',
+                loadBalancers: [
+                    {
+                        targetGroupArn: targetGroup.arn,
+                        containerName: 'app',
+                        containerPort: 80,
                     },
                 ],
             },
-        })
-
-        // Create the API Gateway
-        const api = new aws.apigatewayv2.Api(`${name}-apigateway`, {
-            protocolType: 'HTTP',
-        })
-
-        // Create the Lambda Authoriser function
-        const authoriserLambda = new aws.lambda.Function(
-            `${name}-authoriser-lambda`,
-            {
-                runtime: aws.lambda.Runtime.NodeJS22dX,
-                code: new pulumi.asset.AssetArchive({
-                    '.': new pulumi.asset.FileArchive('./dist'),
-                }),
-                handler: 'authoriser.handler',
-                role: lambdaRole.arn,
-                environment: {
-                    variables: {
-                        API_KEY: configObject.apiKey,
-                    },
-                },
-            },
+            { dependsOn: [listener] },
         )
-
-        // Attach Lambda permission for API Gateway to invoke the authoriser
-        new aws.lambda.Permission(`${name}-apigateway-authoriser-permission`, {
-            action: 'lambda:InvokeFunction',
-            function: authoriserLambda.name,
-            principal: 'apigateway.amazonaws.com',
-        })
-
-        // Create the Lambda Authorizer for the HTTP API
-        const authoriser = new aws.apigatewayv2.Authorizer(
-            `${name}-authoriser`,
-            {
-                apiId: api.id,
-                authorizerType: 'REQUEST',
-                authorizerUri: pulumi.interpolate`arn:aws:apigateway:${aws.config.region}:lambda:path/2015-03-31/functions/${authoriserLambda.arn}/invocations`,
-                identitySources: ['$request.header.x-api-key'],
-                name: `${name}-authoriser`,
-                authorizerPayloadFormatVersion: '2.0',
-                enableSimpleResponses: true,
-            },
-        )
-
-        // GET /comments Lambda
-        new LambdaFunction(name, 'get-comments', {
-            lambdaRole,
-            subnetIds: pulumi.output([subnetA.id, subnetB.id]),
-            securityGroupId: securityGroup.id,
-            config: configObject,
-            dbHost: dbInstance.address,
-            api,
-            routeArgs: {
-                requestType: 'GET',
-                routeKey: '/comments',
-            },
-            authorizerId: authoriser.id,
-        })
-
-        // POST /comments Lambda
-        new LambdaFunction(name, 'post-comments', {
-            lambdaRole,
-            subnetIds: pulumi.output([subnetA.id, subnetB.id]),
-            securityGroupId: securityGroup.id,
-            config: configObject,
-            dbHost: dbInstance.address,
-            api,
-            routeArgs: {
-                requestType: 'POST',
-                routeKey: '/comments',
-            },
-            authorizerId: authoriser.id,
-        })
-
-        // POST /migrations Lambda
-        new LambdaFunction(name, 'post-migrations', {
-            lambdaRole,
-            subnetIds: pulumi.output([subnetA.id, subnetB.id]),
-            securityGroupId: securityGroup.id,
-            config: configObject,
-            dbHost: dbInstance.address,
-            api,
-            routeArgs: {
-                requestType: 'POST',
-                routeKey: '/migrations',
-            },
-            authorizerId: authoriser.id,
-        })
-
-        // Create default stage
-        new aws.apigatewayv2.Stage(`${name}-stage`, {
-            apiId: api.id,
-            name: '$default',
-            autoDeploy: true,
-        })
 
         // Create a Route53 zone for the domain
         const zone = new aws.route53.Zone(`${name}-zone`, {
             name: domainName,
         })
 
+        // ACM Certificate in us-east-1 for CloudFront
         const eastRegionProvider = new aws.Provider(
             `${name}-cert-region-provider`,
             {
@@ -308,12 +356,10 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             },
             origins: [
                 {
-                    domainName: api.apiEndpoint.apply((endpoint) =>
-                        endpoint.replace('https://', ''),
-                    ),
+                    domainName: alb.dnsName,
                     originId: apiOriginName,
                     customOriginConfig: {
-                        originProtocolPolicy: 'https-only',
+                        originProtocolPolicy: 'http-only',
                         httpPort: 80,
                         httpsPort: 443,
                         originSslProtocols: ['TLSv1.2'],
@@ -365,6 +411,7 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             ],
         })
 
+        // Outputs
         this.clusterEndpoint = dbInstance.endpoint
         this.apiUrl = pulumi.interpolate`https://${domainName}/`
         this.cdnUrl = cdn.domainName
@@ -375,5 +422,7 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
         this.validationValue =
             certificate.domainValidationOptions[0].resourceRecordValue
         this.route53NameServers = zone.nameServers
+        this.ecsPublicIp = ecsInstance.publicIp
+        this.ecrRepositoryUrl = ecrRepo.repositoryUrl
     }
 }
