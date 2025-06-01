@@ -9,3 +9,5 @@ export const validationName = comments.validationName
 export const validationType = comments.validationType
 export const validationValue = comments.validationValue
 export const route53NameServers = comments.route53NameServers
+export const ecsPublicIp = comments.ecsPublicIp
+export const ecrRepositoryUrl = comments.ecrRepositoryUrl
