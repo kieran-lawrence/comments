@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -24,36 +23,44 @@ model Site {
 model User {
   id                   Int                    @id @default(autoincrement())
   name                 String
-  roles                Role                   @default(USER)
+  role                 Role                   @default(USER)
   createdAt            DateTime               @default(now())
   site                 Site                   @relation(fields: [siteId], references: [id])
   siteId               Int
-  stories              Stories[]
-  comments             Comment[]
+  stories              Story[]
+  comments             Comment[]              @relation("CommentToUser")
   commentStatusChanges CommentStatusChanges[]
+  reviewedComments     Comment[]              @relation("CommentReviewedByUser")
 }
 
-model Stories {
-  id        Int                   @id @default(autoincrement())
-  title     String
-  content   String
-  status    StoryCommentingStatus @default(OPEN)
-  createdAt DateTime              @default(now())
-  author    User                  @relation(fields: [authorId], references: [id])
-  authorId  Int
-  comments  Comment[]
+model Story {
+  id           Int                   @id @default(autoincrement())
+  articleId    String
+  articleUrl   String
+  articleTitle String
+  status       StoryCommentingStatus @default(OPEN)
+  createdAt    DateTime              @default(now())
+  author       User                  @relation(fields: [authorId], references: [id])
+  authorId     Int
+  comments     Comment[]
 }
 
 model Comment {
   id            Int                    @id @default(autoincrement())
+  parentId      Int?
+  parent        Comment?               @relation("CommentToReplies", fields: [parentId], references: [id])
+  replies       Comment[]              @relation("CommentToReplies")
   content       String
   status        CommentStatus          @default(PENDING)
   createdAt     DateTime               @default(now())
-  story         Stories                @relation(fields: [storyId], references: [id])
+  updatedAt     DateTime               @default(now())
+  story         Story                  @relation(fields: [storyId], references: [id])
   storyId       Int
-  author        User                   @relation(fields: [authorId], references: [id])
+  author        User                   @relation("CommentToUser", fields: [authorId], references: [id])
   authorId      Int
   statusChanges CommentStatusChanges[]
+  reviewedBy    User?                  @relation("CommentReviewedByUser", fields: [reviewedById], references: [id])
+  reviewedById  Int?
 }
 
 model CommentStatusChanges {
