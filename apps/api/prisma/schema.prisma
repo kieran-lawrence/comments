@@ -18,6 +18,7 @@ model Site {
   name      String
   createdAt DateTime @default(now())
   user      User[]
+  stories   Story[]
 }
 
 model User {
@@ -43,6 +44,8 @@ model Story {
   author       User                  @relation(fields: [authorId], references: [id])
   authorId     Int
   comments     Comment[]
+  site         Site                  @relation(fields: [siteId], references: [id])
+  siteId       Int
 }
 
 model Comment {
