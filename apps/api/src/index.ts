@@ -1,7 +1,9 @@
 import express from 'express'
+import { commentsRouter } from './routes/comments'
 
 // Initialise Express
 const app = express()
+const PORT = 80 // This must match the port defined in the ECS Task Definition in `apps/infrastructure/comments.ts`
 
 // Middleware to parse JSON bodies
 app.use(express.json())
@@ -30,6 +32,8 @@ app.use((req, res, next) => {
     next()
 })
 
+// Register routes
+app.use('/comments', commentsRouter)
 const port = 80
 
 app.get('/', (req, res) => {
@@ -38,4 +42,8 @@ app.get('/', (req, res) => {
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Comments API listening on port ${PORT}`)
 })
