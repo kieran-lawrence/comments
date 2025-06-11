@@ -1,5 +1,6 @@
 import express from 'express'
 import { commentsRouter } from './routes/comments'
+import { sitesRouter } from './routes/sites'
 
 // Initialise Express
 const app = express()
@@ -34,6 +35,7 @@ app.use((req, res, next) => {
 
 // Register routes
 app.use('/comments', commentsRouter)
+app.use('/sites', sitesRouter)
 const port = 80
 
 app.get('/', (req, res) => {
