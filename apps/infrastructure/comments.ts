@@ -188,7 +188,6 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
                 (clusterName) =>
                     `#!/bin/bash\necho ECS_CLUSTER=${clusterName} >> /etc/ecs/ecs.config`, // Runs on instance startup, configures the ECS agent to join ECS cluster
             ),
-            associatePublicIpAddress: true,
             tags: { Name: `${name}-ecs-instance` },
         })
 
@@ -217,7 +216,7 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
         const taskDefinition = new aws.ecs.TaskDefinition(`${name}-task-def`, {
             family: `${name}-family`,
             cpu: '256',
-            memory: '512',
+            memory: '256',
             networkMode: 'bridge',
             requiresCompatibilities: ['EC2'],
             executionRoleArn: ecsTaskExecutionRole.arn,
@@ -229,12 +228,10 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
                         essential: true,
                         portMappings: [{ containerPort: 80, hostPort: 80 }],
                         environment: [
-                            { name: 'DB_USER', value: configObject.dbUsername },
                             {
-                                name: 'DB_PASSWORD',
-                                value: configObject.dbPassword,
+                                name: 'DATABASE_URL',
+                                value: pulumi.interpolate`postgres://${configObject.dbUsername}:${configObject.dbPassword}@${dbInstance.endpoint}/${configObject.dbName}?schema=public`,
                             },
-                            { name: 'DB_NAME', value: configObject.dbName },
                             { name: 'API_KEY', value: configObject.apiKey },
                         ],
                     },
