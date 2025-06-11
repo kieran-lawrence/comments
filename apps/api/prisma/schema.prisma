@@ -14,11 +14,11 @@ datasource db {
 }
 
 model Site {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  createdAt DateTime @default(now())
-  user      User[]
-  stories   Story[]
+  createdAt DateTime  @default(now())
+  users     User[]
+  articles  Article[]
 }
 
 model User {
@@ -28,23 +28,41 @@ model User {
   createdAt            DateTime               @default(now())
   site                 Site                   @relation(fields: [siteId], references: [id])
   siteId               Int
-  stories              Story[]
+  articles             Article[]
   comments             Comment[]              @relation("CommentToUser")
   commentStatusChanges CommentStatusChanges[]
   reviewedComments     Comment[]              @relation("CommentReviewedByUser")
+  suspended            Boolean                @default(false)
+  suspendedUntil       DateTime?
+  suspendedBy          User?                  @relation("UserSuspendedBy", fields: [suspendedById], references: [id])
+  suspendedById        Int?
+  suspendedReason      String?
+  User                 User[]                 @relation("UserSuspendedBy")
+  ignoredUsers         UserIgnoredUsers[]     @relation("UserIgnoredUsers_user")
+  ignoredByUsers       UserIgnoredUsers[]     @relation("UserIgnoredUsers_ignored")
 }
 
-model Story {
-  id           Int                   @id @default(autoincrement())
+model UserIgnoredUsers {
+  userId    Int
+  ignoredId Int
+  ignoredAt DateTime @default(now())
+  user      User     @relation("UserIgnoredUsers_user", fields: [userId], references: [id])
+  ignored   User     @relation("UserIgnoredUsers_ignored", fields: [ignoredId], references: [id])
+
+  @@id([userId, ignoredId])
+}
+
+model Article {
+  id           Int                     @id @default(autoincrement())
   articleId    String
   articleUrl   String
   articleTitle String
-  status       StoryCommentingStatus @default(OPEN)
-  createdAt    DateTime              @default(now())
-  author       User                  @relation(fields: [authorId], references: [id])
+  status       ArticleCommentingStatus @default(OPEN)
+  createdAt    DateTime                @default(now())
+  author       User                    @relation(fields: [authorId], references: [id])
   authorId     Int
   comments     Comment[]
-  site         Site                  @relation(fields: [siteId], references: [id])
+  site         Site                    @relation(fields: [siteId], references: [id])
   siteId       Int
 }
 
@@ -55,10 +73,11 @@ model Comment {
   replies       Comment[]              @relation("CommentToReplies")
   content       String
   status        CommentStatus          @default(PENDING)
+  likeCount     Int                    @default(0)
   createdAt     DateTime               @default(now())
   updatedAt     DateTime               @default(now())
-  story         Story                  @relation(fields: [storyId], references: [id])
-  storyId       Int
+  article       Article                @relation(fields: [articleId], references: [id])
+  articleId     Int
   author        User                   @relation("CommentToUser", fields: [authorId], references: [id])
   authorId      Int
   statusChanges CommentStatusChanges[]
@@ -85,7 +104,7 @@ enum Role {
   ADMIN
 }
 
-enum StoryCommentingStatus {
+enum ArticleCommentingStatus {
   OPEN
   CLOSED
 }
@@ -98,7 +117,7 @@ enum CommentStatus {
 }
 
 enum CommentStatusChangeBy {
-  USER
+  STAFF
   COMMUNITY
   SYSTEM
 }
