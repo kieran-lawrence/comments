@@ -12,7 +12,7 @@ CREATE TYPE "CommentStatusChangeBy" AS ENUM ('STAFF', 'COMMUNITY', 'SYSTEM');
 
 -- CreateTable
 CREATE TABLE "Site" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -25,8 +25,11 @@ CREATE TABLE "User" (
     "name" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'USER',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "siteId" INTEGER NOT NULL,
+    "siteId" TEXT NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "deleted" BOOLEAN NOT NULL DEFAULT false,
     "suspended" BOOLEAN NOT NULL DEFAULT false,
+    "suspendedAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "suspendedUntil" TIMESTAMP(3),
     "suspendedById" INTEGER,
     "suspendedReason" TEXT,
@@ -52,7 +55,7 @@ CREATE TABLE "Article" (
     "status" "ArticleCommentingStatus" NOT NULL DEFAULT 'OPEN',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "authorId" INTEGER NOT NULL,
-    "siteId" INTEGER NOT NULL,
+    "siteId" TEXT NOT NULL,
 
     CONSTRAINT "Article_pkey" PRIMARY KEY ("id")
 );
@@ -91,7 +94,7 @@ CREATE TABLE "CommentStatusChanges" (
 ALTER TABLE "User" ADD CONSTRAINT "User_siteId_fkey" FOREIGN KEY ("siteId") REFERENCES "Site"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "User" ADD CONSTRAINT "User_suspendedById_fkey" FOREIGN KEY ("suspendedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "User" ADD CONSTRAINT "User_suspendedById_fkey" FOREIGN KEY ("suspendedById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "UserIgnoredUsers" ADD CONSTRAINT "UserIgnoredUsers_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -115,11 +118,11 @@ ALTER TABLE "Comment" ADD CONSTRAINT "Comment_articleId_fkey" FOREIGN KEY ("arti
 ALTER TABLE "Comment" ADD CONSTRAINT "Comment_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Comment" ADD CONSTRAINT "Comment_reviewedById_fkey" FOREIGN KEY ("reviewedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Comment" ADD CONSTRAINT "Comment_reviewedById_fkey" FOREIGN KEY ("reviewedById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "CommentStatusChanges" ADD CONSTRAINT "CommentStatusChanges_commentId_fkey" FOREIGN KEY ("commentId") REFERENCES "Comment"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "CommentStatusChanges" ADD CONSTRAINT "CommentStatusChanges_changedById_fkey" FOREIGN KEY ("changedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "CommentStatusChanges" ADD CONSTRAINT "CommentStatusChanges_changedById_fkey" FOREIGN KEY ("changedById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 

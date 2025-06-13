@@ -14,7 +14,7 @@ datasource db {
 }
 
 model Site {
-  id        Int       @id @default(autoincrement())
+  id        String    @id
   name      String
   createdAt DateTime  @default(now())
   users     User[]
@@ -27,14 +27,17 @@ model User {
   role                 Role                   @default(USER)
   createdAt            DateTime               @default(now())
   site                 Site                   @relation(fields: [siteId], references: [id])
-  siteId               Int
+  siteId               String
   articles             Article[]
   comments             Comment[]              @relation("CommentToUser")
   commentStatusChanges CommentStatusChanges[]
   reviewedComments     Comment[]              @relation("CommentReviewedByUser")
+  active               Boolean                @default(true)
+  deleted              Boolean                @default(false)
   suspended            Boolean                @default(false)
+  suspendedAt          DateTime?              @default(now())
   suspendedUntil       DateTime?
-  suspendedBy          User?                  @relation("UserSuspendedBy", fields: [suspendedById], references: [id])
+  suspendedBy          User?                  @relation("UserSuspendedBy", fields: [suspendedById], references: [id], onDelete: Restrict)
   suspendedById        Int?
   suspendedReason      String?
   User                 User[]                 @relation("UserSuspendedBy")
@@ -46,8 +49,8 @@ model UserIgnoredUsers {
   userId    Int
   ignoredId Int
   ignoredAt DateTime @default(now())
-  user      User     @relation("UserIgnoredUsers_user", fields: [userId], references: [id])
-  ignored   User     @relation("UserIgnoredUsers_ignored", fields: [ignoredId], references: [id])
+  user      User     @relation("UserIgnoredUsers_user", fields: [userId], references: [id], onDelete: Restrict)
+  ignored   User     @relation("UserIgnoredUsers_ignored", fields: [ignoredId], references: [id], onDelete: Restrict)
 
   @@id([userId, ignoredId])
 }
@@ -59,11 +62,11 @@ model Article {
   articleTitle String
   status       ArticleCommentingStatus @default(OPEN)
   createdAt    DateTime                @default(now())
-  author       User                    @relation(fields: [authorId], references: [id])
+  author       User                    @relation(fields: [authorId], references: [id], onDelete: Restrict)
   authorId     Int
   comments     Comment[]
   site         Site                    @relation(fields: [siteId], references: [id])
-  siteId       Int
+  siteId       String
 }
 
 model Comment {
@@ -78,10 +81,10 @@ model Comment {
   updatedAt     DateTime               @default(now())
   article       Article                @relation(fields: [articleId], references: [id])
   articleId     Int
-  author        User                   @relation("CommentToUser", fields: [authorId], references: [id])
+  author        User                   @relation("CommentToUser", fields: [authorId], references: [id], onDelete: Restrict)
   authorId      Int
   statusChanges CommentStatusChanges[]
-  reviewedBy    User?                  @relation("CommentReviewedByUser", fields: [reviewedById], references: [id])
+  reviewedBy    User?                  @relation("CommentReviewedByUser", fields: [reviewedById], references: [id], onDelete: Restrict)
   reviewedById  Int?
 }
 
@@ -92,7 +95,7 @@ model CommentStatusChanges {
   oldStatus     CommentStatus
   newStatus     CommentStatus
   changedBy     CommentStatusChangeBy @default(SYSTEM)
-  changedByUser User?                 @relation(fields: [changedById], references: [id])
+  changedByUser User?                 @relation(fields: [changedById], references: [id], onDelete: Restrict)
   changedById   Int?
   changedReason String?
   changedAt     DateTime              @default(now())

@@ -32,6 +32,7 @@ usersRouter.post('/', async (req, res) => {
         res.status(400).json({
             error: 'Missing one or more of the following required fields: name, siteId',
         })
+        return
     }
 
     try {
@@ -215,11 +216,12 @@ usersRouter.delete('/:id', async (req, res) => {
             })
             return
         }
-        const deletedUser = await prisma.user.delete({
+        // Mark user as deleted
+        const deletedUser = await prisma.user.update({
             where: { id: userId },
-            include: {
-                comments: true,
-                ignoredUsers: true,
+            data: {
+                active: false,
+                deleted: true,
             },
         })
         res.status(200).json(deletedUser)

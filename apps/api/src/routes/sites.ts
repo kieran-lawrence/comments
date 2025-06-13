@@ -33,15 +33,19 @@ sitesRouter.get('/', async (req, res) => {
 
 // POST /sites
 sitesRouter.post('/', async (req, res) => {
-    const { name } = req.body
+    const { id, name } = req.body
 
-    if (!name) {
-        res.status(400).json({ error: 'Missing required field: name' })
+    if (!id || !name) {
+        res.status(400).json({
+            error: 'Missing one or more of the following required fields: id, name',
+        })
+        return
     }
 
     try {
         const newSite = await prisma.site.create({
             data: {
+                id,
                 name,
             },
         })

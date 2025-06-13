@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 
     const apiKey = process.env.API_KEY
 
-    if (!key) {
+    if (!apiKey) {
         res.status(401).json({ error: 'X-API-KEY missing from environment' })
         next()
     }
