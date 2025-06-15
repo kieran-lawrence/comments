@@ -17,20 +17,28 @@ function HomePage() {
     return (
         <>
             <Button
-                text="Approved"
-                backgroundColor="#D0F9D9"
-                textColor="#034211"
                 onClick={() => {
-                    alert('bleh')
+                    alert('I am approved, my human told me so 💖')
                 }}
+                type="approved"
             />
             <Button
-                text="Rejected"
-                backgroundColor="#FFC3C7"
-                textColor="#420000"
                 onClick={() => {
-                    alert('Rejected')
+                    alert('I am not yet approved 😭')
                 }}
+                type="approve-neutral"
+            />
+            <Button
+                onClick={() => {
+                    alert('I am rejected, nobody loves me')
+                }}
+                type="rejected"
+            />
+            <Button
+                onClick={() => {
+                    alert('I am not yet rejected 😍')
+                }}
+                type="reject-neutral"
             />
         </>
     )
