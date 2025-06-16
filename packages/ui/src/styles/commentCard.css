@@ -108,7 +108,7 @@
     font-weight: 700;
 }
 
-.commentReviwedBy {
+.commentReviewedBy {
     display: flex;
     flex-direction: column;
     gap: 4px;
