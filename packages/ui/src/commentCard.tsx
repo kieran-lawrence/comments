@@ -46,7 +46,6 @@ export const Comment = ({
                         </div>
                     )}
                 </div>
-
                 <div>
                     <span className="commentSite">{site}</span>
                     <ShareIcon iconColor={'#161616'} />
@@ -67,13 +66,12 @@ export const Comment = ({
                 <Button onClick={() => {}} type="approve-pending" />
                 <Button onClick={() => {}} type="reject-pending" />
                 {reviewedBy && (
-                    <div className="commentReviwedBy">
+                    <div className="commentReviewedBy">
                         <span>Reviewed by:</span>
                         <span className="commentReviewedByUser">{user}</span>
                     </div>
                 )}
             </div>
-
             <a className="commentLink" href={articleUrl}>
                 View Conversation
             </a>
