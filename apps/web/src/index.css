@@ -1,33 +1,9 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@import '@repo/tailwind-config';
+@import '@repo/ui/styles.css';
 
-@theme {
-    --color-text-menu-hover: #00E9FF;
-    --color-bg-menu: #0D0D0D;
-    --color-primary: #FAFAFA;
-}
-* {
-    margin: 0;
-    box-sizing: border-box;
-}
-
-@layer components {
-    .menuItem {
-        display:flex;
-        align-items: center;
-        gap: 5px;
-        padding: 12px 0;
-        border-top:8px solid var(--color-bg-menu);
-
-        transition: all 0.25s ease;
-        &:is(:hover, :focus-within) {
-            @media (hover: hover) {
-                color: var(--color-text-menu-hover);
-                border-top: 8px solid var(--color-text-menu-hover);
-            }
-        }
-        &.active {
-            color: var(--color-text-menu-hover);
-            border-top: 8px solid var(--color-text-menu-hover);
-        }
-    }
+#root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
