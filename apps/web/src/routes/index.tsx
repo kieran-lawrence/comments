@@ -1,4 +1,4 @@
-import { Button } from '@repo/ui'
+import { Button, Comment } from '@repo/ui'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { getArticles } from '../services/api'
@@ -40,6 +40,39 @@ function HomePage() {
                 }}
                 type="reject-neutral"
             />
+            <Button
+                onClick={() => {
+                    alert(
+                        'I am pending a decision from up above, look at me fly 🕊️',
+                    )
+                }}
+                type="approve-pending"
+            />
+            <Button
+                onClick={() => {
+                    alert(
+                        'I am pending a decision from up above, doom is upon us 🤭',
+                    )
+                }}
+                type="reject-pending"
+            />
+
+            <div style={{ width: '1100px', padding: '8px 16px' }}>
+                <Comment
+                    site="perth now"
+                    user="John S"
+                    datePublished="Just Now"
+                    isFlagged={true}
+                    isReply={true}
+                    reviewedBy="Bob T"
+                    articleTitle="premier open to an extra public holiday for wA"
+                    articleContent="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
+                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo 
+                    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                    articleUrl="This is a URL"
+                />
+            </div>
         </>
     )
 }
