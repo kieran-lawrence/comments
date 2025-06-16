@@ -14,14 +14,16 @@ import {
     useRouter,
 } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import type React from 'react'
 
 export const Route = createRootRoute({
     component: Layout,
 })
+
 type NavigationLink = {
     to: string
     label: string
-    icon: JSX.Element
+    icon: React.ReactElement
 }
 
 function Layout() {
