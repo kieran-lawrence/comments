@@ -1,7 +1,12 @@
 import { Button } from '@repo/ui'
-import './App.css'
+import { createFileRoute } from '@tanstack/react-router'
 
-export const App = () => {
+export const Route = createFileRoute('/')({
+    component: HomePage,
+})
+
+// The homepage in our app is technically the "Moderate" page
+function HomePage() {
     return (
         <>
             <Button
