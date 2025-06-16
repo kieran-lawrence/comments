@@ -1,4 +1,4 @@
-import { Button, Comment } from '@repo/ui'
+import { Comment, PageLayout } from '@repo/ui'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { getArticles } from '../services/api'
@@ -15,49 +15,9 @@ function HomePage() {
     })
 
     return (
-        <>
-            <Button
-                onClick={() => {
-                    alert('I am approved, my human told me so 💖')
-                }}
-                type="approved"
-            />
-            <Button
-                onClick={() => {
-                    alert('I am not yet approved 😭')
-                }}
-                type="approve-neutral"
-            />
-            <Button
-                onClick={() => {
-                    alert('I am rejected, nobody loves me')
-                }}
-                type="rejected"
-            />
-            <Button
-                onClick={() => {
-                    alert('I am not yet rejected 😍')
-                }}
-                type="reject-neutral"
-            />
-            <Button
-                onClick={() => {
-                    alert(
-                        'I am pending a decision from up above, look at me fly 🕊️',
-                    )
-                }}
-                type="approve-pending"
-            />
-            <Button
-                onClick={() => {
-                    alert(
-                        'I am pending a decision from up above, doom is upon us 🤭',
-                    )
-                }}
-                type="reject-pending"
-            />
-
-            <div style={{ width: '1100px', padding: '8px 16px' }}>
+        <PageLayout
+            sidebar={<>Sidebar</>}
+            mainContent={
                 <Comment
                     site="perth now"
                     user="John S"
@@ -72,7 +32,7 @@ function HomePage() {
                     Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
                     articleUrl="This is a URL"
                 />
-            </div>
-        </>
+            }
+        />
     )
 }
