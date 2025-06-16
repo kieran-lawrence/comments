@@ -1,0 +1,121 @@
+.commentContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #f4f4f4;
+    color: #161616;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    line-height: 150%;
+}
+
+.commentTop {
+    display: flex;
+    justify-content: space-between;
+}
+
+.commentTop > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.commentTop > div:last-child {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.commentDate {
+    color: #525252;
+    font-size: 14px;
+    font-weight: 400;
+    text-transform: lowercase;
+}
+
+.commentSite {
+    font-size: 15px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.commentActions {
+    display: flex;
+    gap: 13px;
+}
+
+.commentTitle {
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.commentContent {
+    font-size: 15px;
+    font-weight: 400;
+}
+
+.commentLink {
+    color: #4b006e;
+    font-weight: 400;
+    text-underline-position: from-font;
+}
+
+.commentFlag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.commentFlagLabel {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 5px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.commentFlagUser {
+    color: #525252;
+    font-weight: 400;
+    text-transform: capitalize;
+}
+
+.commentReply {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #525252;
+    font-size: 13px;
+    margin-left: 16px;
+    line-height: 125%;
+}
+
+.commentReplyLabel {
+    display: flex;
+    gap: 2px;
+}
+
+.commentReplyUser {
+    color: #161616;
+    font-weight: 700;
+}
+
+.commentReviwedBy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    line-height: 125%;
+}
+
+.commentReviewedByUser {
+    color: #525252;
+    font-weight: 400;
+}

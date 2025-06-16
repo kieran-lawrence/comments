@@ -2,7 +2,13 @@ import './styles/button.css'
 
 type ButtonProps = { onClick: () => void; type: ButtonType }
 
-type ButtonType = 'approved' | 'rejected' | 'approve-neutral' | 'reject-neutral'
+type ButtonType =
+    | 'approved'
+    | 'rejected'
+    | 'approve-neutral'
+    | 'reject-neutral'
+    | 'approve-pending'
+    | 'reject-pending'
 
 export const Button = ({ onClick, type }: ButtonProps) => {
     const { textColor, text, backgroundColor } = getButtonConfig(type)
@@ -20,12 +26,12 @@ export const Button = ({ onClick, type }: ButtonProps) => {
     )
 }
 
-type ButtonReturnType = {
+type ButtonConfig = {
     text: string
     backgroundColor: string
     textColor: string
 }
-const getButtonConfig = (type: ButtonType): ButtonReturnType => {
+const getButtonConfig = (type: ButtonType): ButtonConfig => {
     switch (type) {
         case 'approved':
             return {
@@ -43,13 +49,25 @@ const getButtonConfig = (type: ButtonType): ButtonReturnType => {
             return {
                 text: 'approve',
                 backgroundColor: 'none',
-                textColor: '#525252',
+                textColor: '#161616',
             }
         case 'reject-neutral':
             return {
                 text: 'reject',
                 backgroundColor: 'none',
-                textColor: '#525252',
+                textColor: '#161616',
+            }
+        case 'approve-pending':
+            return {
+                text: 'approve',
+                backgroundColor: '#D0F9D9',
+                textColor: '#034211',
+            }
+        case 'reject-pending':
+            return {
+                text: 'reject',
+                backgroundColor: '#FFC3C7',
+                textColor: '#420000',
             }
     }
 }
