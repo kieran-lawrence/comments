@@ -9,7 +9,10 @@ export const Route = createFileRoute('/')({
 
 // The homepage in our app is technically the "Moderate" page
 function HomePage() {
-    const query = useQuery({ queryKey: ['aaa'], queryFn: getArticles })
+    const query = useQuery({
+        queryKey: ['getArticlesKey'],
+        queryFn: getArticles,
+    })
 
     return (
         <>
