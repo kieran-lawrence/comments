@@ -1,37 +1,88 @@
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
+import {
+    ArticleIcon,
+    DashboardIcon,
+    HistoryIcon,
+    ModerateIcon,
+    SettingsIcon,
+    SiteIcon,
+    UserIcon,
+} from '@repo/ui'
+import {
+    createRootRoute,
+    Link,
+    Outlet,
+    useRouter,
+} from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 
-// This is the root 'route' of our app.
 export const Route = createRootRoute({
-    // HTML inside the component 'function' will be rendered on every page.
-    // This is a good place for our nav to be.
-    component: () => (
+    component: Layout,
+})
+type NavigationLink = {
+    to: string
+    label: string
+    icon: JSX.Element
+}
+
+function Layout() {
+    const router = useRouter()
+    const [currentPath, setCurrentPath] = useState(
+        router.state.location.pathname,
+    )
+    useEffect(() => {
+        // Subscribe to the router's onLoad event to update the current path
+        // Returns an unsubscribe function to clean up the subscription later
+        const unsubscribe = router.subscribe('onLoad', () => {
+            setCurrentPath(router.state.location.pathname)
+        })
+        // Unsubscribe from the router when the component unmounts
+        return () => {
+            unsubscribe()
+        }
+    }, [router])
+
+    // Define the navigation links
+    const navLinks: NavigationLink[] = [
+        { to: '/dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
+        { to: '/', label: 'Moderate', icon: <ModerateIcon /> },
+        { to: '/articles', label: 'Articles', icon: <ArticleIcon /> },
+        { to: '/users', label: 'Users', icon: <UserIcon /> },
+        { to: '/settings', label: 'Settings', icon: <SettingsIcon /> },
+        { to: '/history', label: 'History', icon: <HistoryIcon /> },
+    ]
+
+    return (
         <>
-            <div>
-                <nav>
-                    <ul>
-                        <li>
-                            <Link to="/dashboard">Dashboard</Link>
+            <nav
+                aria-label="Main Navigation"
+                className="flex justify-between items-center bg-bg-menu text-primary px-5"
+            >
+                <Link
+                    to="/"
+                    className="text-2xl font-medium transition-all duration-250 hover:text-text-menu-hover"
+                >
+                    Comments
+                </Link>
+                <ul className="flex items-center gap-5 text-xl">
+                    {/* Loop over the nav links and create a nav item for eachin the array */}
+                    {navLinks.map((link) => (
+                        <li
+                            key={link.to}
+                            // If the current path matches the link's path, add the 'active' class
+                            className={`menuItem ${currentPath === link.to ? 'active' : ''}`}
+                        >
+                            {link.icon}
+                            <Link to={link.to}>{link.label}</Link>
                         </li>
-                        <li>
-                            <Link to="/">Moderate</Link>
-                        </li>
-                        <li>
-                            <Link to="/articles">Articles</Link>
-                        </li>
-                        <li>
-                            <Link to="/users">Users</Link>
-                        </li>
-                        <li>
-                            <Link to="/settings">Settings</Link>
-                        </li>
-                        <li>
-                            <Link to="/history">History</Link>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-            <hr />
+                    ))}
+                </ul>
+                <div className="flex items-center gap-2 text-2xl">
+                    {/* TODO: This should be set by config or something similar when we set it up */}
+                    <SiteIcon site="thenightly" />
+                    The Nightly
+                </div>
+            </nav>
             <Outlet />
         </>
-    ),
-})
+    )
+}
