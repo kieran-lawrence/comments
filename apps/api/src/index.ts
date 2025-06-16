@@ -3,6 +3,7 @@ import { commentsRouter } from './routes/comments'
 import { sitesRouter } from './routes/sites'
 import { usersRouter } from './routes/users'
 import { articlesRouter } from './routes/articles'
+import cors from 'cors'
 
 // Initialise Express
 const app = express()
@@ -10,26 +11,33 @@ const PORT = 80 // This must match the port defined in the ECS Task Definition i
 
 // Middleware to parse JSON bodies
 app.use(express.json())
+// Middleware to enable CORS
+app.use(
+    cors({
+        origin: 'http://localhost:5173',
+        credentials: true,
+    }),
+)
 
-// Middleware to handle API
+// Middleware to handle API key
 app.use((req, res, next) => {
     const key = req.get('x-api-key')
 
     if (!key) {
         res.status(401).json({ error: 'X-API-KEY header missing' })
-        next()
+        return
     }
 
     const apiKey = process.env.API_KEY
 
     if (!apiKey) {
         res.status(401).json({ error: 'X-API-KEY missing from environment' })
-        next()
+        return
     }
 
     if (key !== apiKey) {
         res.status(401).json({ error: 'Invalid X-API-KEY' })
-        next()
+        return
     }
 
     next()

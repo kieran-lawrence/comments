@@ -35,7 +35,7 @@ model User {
   active               Boolean                @default(true)
   deleted              Boolean                @default(false)
   suspended            Boolean                @default(false)
-  suspendedAt          DateTime?              @default(now())
+  suspendedAt          DateTime?
   suspendedUntil       DateTime?
   suspendedBy          User?                  @relation("UserSuspendedBy", fields: [suspendedById], references: [id], onDelete: Restrict)
   suspendedById        Int?
