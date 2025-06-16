@@ -1,5 +1,7 @@
 import { Button } from '@repo/ui'
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { getArticles } from '../services/api'
 
 export const Route = createFileRoute('/')({
     component: HomePage,
@@ -7,6 +9,8 @@ export const Route = createFileRoute('/')({
 
 // The homepage in our app is technically the "Moderate" page
 function HomePage() {
+    const query = useQuery({ queryKey: ['aaa'], queryFn: getArticles })
+
     return (
         <>
             <Button
