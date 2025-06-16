@@ -10,7 +10,10 @@ export const Route = createRootRoute({
                 <nav>
                     <ul>
                         <li>
-                            <Link to="/">Home</Link>
+                            <Link to="/dashboard">Dashboard</Link>
+                        </li>
+                        <li>
+                            <Link to="/">Moderate</Link>
                         </li>
                         <li>
                             <Link to="/articles">Articles</Link>
