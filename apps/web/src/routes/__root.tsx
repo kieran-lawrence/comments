@@ -66,7 +66,7 @@ function Layout() {
                     Comments
                 </Link>
                 <ul className="flex items-center gap-5 text-xl">
-                    {/* Loop over the nav links and create a nav item for eachin the array */}
+                    {/* Loop over the nav links and create a nav item for each in the array */}
                     {navLinks.map((link) => (
                         <li
                             key={link.to}
