@@ -40,6 +40,7 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             vpcId: vpc.id,
             cidrBlock: '10.0.1.0/24',
             availabilityZone: 'ap-southeast-2a',
+            mapPublicIpOnLaunch: true, // Allows instances in this subnet to have public IPs
         })
         const subnetB = new aws.ec2.Subnet(`${name}-subnet-b`, {
             vpcId: vpc.id,
@@ -169,12 +170,13 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             // Fetches the latest Amazon ECS-optimized AMI
             ami: aws.ec2
                 .getAmi({
+                    owners: ['amazon'],
                     filters: [
                         {
                             name: 'name',
                             values: ['amzn2-ami-ecs-hvm-*-x86_64-ebs'],
                         },
-                        { name: 'owner-alias', values: ['amazon'] },
+                        { name: 'state', values: ['available'] },
                     ],
                     mostRecent: true,
                 })
@@ -186,7 +188,8 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             keyName: 'my-key-pair',
             userData: ecsCluster.name.apply(
                 (clusterName) =>
-                    `#!/bin/bash\necho ECS_CLUSTER=${clusterName} >> /etc/ecs/ecs.config`, // Runs on instance startup, configures the ECS agent to join ECS cluster
+                    `#!/bin/bash echo ECS_CLUSTER=${clusterName} >> /etc/ecs/ecs.config 
+                    systemctl enable --now ecs`, // Runs on instance startup, configures the ECS agent to join ECS cluster
             ),
             tags: { Name: `${name}-ecs-instance` },
         })
@@ -212,6 +215,13 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
         // Get the Container image URI
         const imageUri = pulumi.interpolate`${ecrRepo.repositoryUrl}:latest`
 
+        const logGroup = new aws.cloudwatch.LogGroup(
+            `${name}-ecr-task-log-group`,
+            {
+                retentionInDays: 3,
+            },
+        )
+
         // ECS Task Definition
         const taskDefinition = new aws.ecs.TaskDefinition(`${name}-task-def`, {
             family: `${name}-family`,
@@ -234,6 +244,14 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
                             },
                             { name: 'API_KEY', value: configObject.apiKey },
                         ],
+                        logConfiguration: {
+                            logDriver: 'awslogs',
+                            options: {
+                                'awslogs-group': logGroup.name,
+                                'awslogs-region': aws.config.region,
+                                'awslogs-stream-prefix': 'ecs',
+                            },
+                        },
                     },
                 ])
                 .apply(JSON.stringify),
