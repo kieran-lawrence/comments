@@ -5,11 +5,11 @@
     "license": "MIT",
     "private": true,
     "scripts": {
-        "start:dev": "docker run --platform linux/amd64 --env-file .env.docker -p 6688:80 comments-ecr-repo-ee2da95:latest",
+        "start:dev": "docker run --platform linux/amd64 --env-file .env.docker -p 6688:80 comments-ecr-repo-2da4e3a:latest",
         "build": "esbuild src/index.ts --bundle --platform=node --target=node20 --outfile=dist/index.js",
-        "docker-build": "docker build --no-cache --platform linux/amd64 -t comments-ecr-repo-ee2da95 .",
-        "docker-tag": "AWS_PROFILE=kieran-personal docker tag comments-ecr-repo-ee2da95:latest 070410863296.dkr.ecr.ap-southeast-2.amazonaws.com/comments-ecr-repo-ee2da95:latest",
-        "docker-push": "AWS_PROFILE=kieran-personal docker push 070410863296.dkr.ecr.ap-southeast-2.amazonaws.com/comments-ecr-repo-ee2da95:latest",
+        "docker-build": "docker build --platform linux/amd64 -t comments-ecr-repo-2da4e3a .",
+        "docker-tag": "AWS_PROFILE=kieran-personal docker tag comments-ecr-repo-2da4e3a:latest 070410863296.dkr.ecr.ap-southeast-2.amazonaws.com/comments-ecr-repo-2da4e3a:latest",
+        "docker-push": "AWS_PROFILE=kieran-personal docker push 070410863296.dkr.ecr.ap-southeast-2.amazonaws.com/comments-ecr-repo-2da4e3a:latest",
         "ecr-login": "aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 070410863296.dkr.ecr.ap-southeast-2.amazonaws.com",
         "dev": "node dist/index.js",
         "db-deploy": "npx prisma migrate deploy && npx prisma generate"
