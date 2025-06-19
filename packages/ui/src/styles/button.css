@@ -7,4 +7,5 @@ button {
     font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     background: none;
+    cursor: pointer;
 }
