@@ -111,7 +111,7 @@ export const getStatusChanges = async (): Promise<
     })
 
     if (!response.ok) {
-        throw new Error('Unable to retrieve Users')
+        throw new Error('Unable to retrieve Status Changes')
     }
 
     const res: Schema_CommentStatusChange[] = await response.json()
