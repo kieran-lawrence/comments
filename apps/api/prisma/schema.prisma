@@ -32,6 +32,7 @@ model User {
   comments             Comment[]              @relation("CommentToUser")
   commentStatusChanges CommentStatusChanges[]
   reviewedComments     Comment[]              @relation("CommentReviewedByUser")
+  flaggedComments      Comment[]              @relation("CommentFlaggedByUser")
   active               Boolean                @default(true)
   deleted              Boolean                @default(false)
   suspended            Boolean                @default(false)
@@ -86,6 +87,8 @@ model Comment {
   statusChanges CommentStatusChanges[]
   reviewedBy    User?                  @relation("CommentReviewedByUser", fields: [reviewedById], references: [id], onDelete: Restrict)
   reviewedById  Int?
+  flaggedBy     User?                  @relation("CommentFlaggedByUser", fields: [flaggedById], references: [id], onDelete: Restrict)
+  flaggedById   Int?
 }
 
 model CommentStatusChanges {

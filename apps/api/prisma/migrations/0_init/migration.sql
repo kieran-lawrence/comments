@@ -29,7 +29,7 @@ CREATE TABLE "User" (
     "active" BOOLEAN NOT NULL DEFAULT true,
     "deleted" BOOLEAN NOT NULL DEFAULT false,
     "suspended" BOOLEAN NOT NULL DEFAULT false,
-    "suspendedAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "suspendedAt" TIMESTAMP(3),
     "suspendedUntil" TIMESTAMP(3),
     "suspendedById" INTEGER,
     "suspendedReason" TEXT,
@@ -72,6 +72,7 @@ CREATE TABLE "Comment" (
     "articleId" INTEGER NOT NULL,
     "authorId" INTEGER NOT NULL,
     "reviewedById" INTEGER,
+    "flaggedById" INTEGER,
 
     CONSTRAINT "Comment_pkey" PRIMARY KEY ("id")
 );
@@ -119,6 +120,9 @@ ALTER TABLE "Comment" ADD CONSTRAINT "Comment_authorId_fkey" FOREIGN KEY ("autho
 
 -- AddForeignKey
 ALTER TABLE "Comment" ADD CONSTRAINT "Comment_reviewedById_fkey" FOREIGN KEY ("reviewedById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Comment" ADD CONSTRAINT "Comment_flaggedById_fkey" FOREIGN KEY ("flaggedById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "CommentStatusChanges" ADD CONSTRAINT "CommentStatusChanges_commentId_fkey" FOREIGN KEY ("commentId") REFERENCES "Comment"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
