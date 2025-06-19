@@ -15,7 +15,11 @@ articlesRouter.get('/', async (req, res) => {
             : undefined
         const allArticles = await prisma.article.findMany({
             include: {
-                comments: true,
+                comments: {
+                    include: {
+                        author: true,
+                    },
+                },
                 author: true,
             },
             where: {
