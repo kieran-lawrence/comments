@@ -32,17 +32,33 @@
     gap: 16px;
 }
 
+.commentTop > button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 4px 8px;
+    min-width: 12%;
+    text-transform: uppercase;
+    transition: background-color 0.25s ease;
+    font-weight: 500;
+
+    &:hover {
+        background-color: #E0E0E0;
+    }
+}
+
+.commentTop > button > svg {
+    width: 18px;
+    height: 18px;
+}
+
 .commentDate {
     color: #525252;
     font-size: 14px;
     font-weight: 400;
     text-transform: lowercase;
-}
-
-.commentSite {
-    font-size: 15px;
-    font-weight: 500;
-    text-transform: capitalize;
 }
 
 .commentActions {
@@ -61,10 +77,32 @@
     font-weight: 400;
 }
 
+.linksContainer {
+    display: flex;
+    gap: 16px;
+}
+
+.linksContainer > span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.linksContainer > span > svg {
+    width: 18px;
+    height: 18px;
+}
+
 .commentLink {
     color: #4b006e;
     font-weight: 400;
+    text-decoration: underline;
     text-underline-position: from-font;
+    transition: 0.25s ease;
+}
+
+.commentLink:hover {
+    color: #8000bc;
 }
 
 .commentFlag {
