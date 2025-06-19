@@ -1,7 +1,8 @@
 import { Comment, PageLayout } from '@repo/ui'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { getArticles } from '../services/api'
+import { getComments, updateCommentStatus } from '../services/api'
+import { UpdateCommentStatusProps } from '@repo/shared-types'
 
 export const Route = createFileRoute('/')({
     component: HomePage,
@@ -9,29 +10,45 @@ export const Route = createFileRoute('/')({
 
 // The homepage in our app is technically the "Moderate" page
 function HomePage() {
-    const query = useQuery({
-        queryKey: ['getArticlesKey'],
-        queryFn: getArticles,
+    const {
+        data: comments,
+        isLoading,
+        isError,
+        refetch,
+    } = useQuery({
+        queryKey: ['getCommentsKey'],
+        queryFn: getComments,
     })
 
+    // TODO: Add loading and error states
+    if (isLoading) {
+        return <div>Loading...</div>
+    }
+    if (isError || !comments) {
+        return <div>Error loading comments</div>
+    }
+    /** Function to handle comment review actions
+     * @param props - The properties for updating the comment status
+     * @returns {Promise<Schema_Comment>} - A promise that resolves when the comment status is updated
+     */
+    const handleCommentReview = async (props: UpdateCommentStatusProps) => {
+        await updateCommentStatus(props)
+        // Refetch comments to update the UI after a status change
+        refetch()
+    }
     return (
         <PageLayout
             sidebar={<>Sidebar</>}
             mainContent={
-                <Comment
-                    site="perth now"
-                    user="John S"
-                    datePublished="Just Now"
-                    isFlagged={true}
-                    isReply={true}
-                    reviewedBy="Bob T"
-                    articleTitle="premier open to an extra public holiday for wA"
-                    articleContent="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo 
-                    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-                    articleUrl="This is a URL"
-                />
+                <div className="flex flex-col gap-4">
+                    {comments.map((comment) => (
+                        <Comment
+                            key={comment.id}
+                            comment={comment}
+                            onCommentReview={handleCommentReview}
+                        />
+                    ))}
+                </div>
             }
         />
     )
