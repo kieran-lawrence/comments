@@ -7,6 +7,37 @@ import {
 const prisma = new PrismaClient()
 export const commentsRouter = Router()
 
+// GET /comments
+commentsRouter.get('/', async (req, res) => {
+    const { siteId } = req.query
+
+    try {
+        const comments = await prisma.comment.findMany({
+            where: {
+                article: {
+                    siteId: siteId ? JSON.stringify(siteId) : undefined,
+                },
+            },
+            include: {
+                article: true,
+                author: true,
+                reviewedBy: true,
+                flaggedBy: true,
+                parent: {
+                    include: {
+                        author: true,
+                    },
+                },
+            },
+        })
+        res.status(200).json(comments)
+    } catch (error) {
+        console.error('Error fetching comments:', error)
+        res.status(500).json({ error: 'Internal server error' })
+        return
+    }
+})
+
 // POST /comments
 commentsRouter.post('/', async (req, res) => {
     //TODO: Add content validation / moderation
@@ -146,7 +177,7 @@ commentsRouter.patch('/:id/status', async (req, res) => {
                 commentId: comment.id,
                 oldStatus: comment.status,
                 newStatus,
-                changedById, // Optional user ID for the change
+                changedById: changedById, // Optional user ID for the change
                 changedReason, // Optional reason for the change
                 changedBy: changedByParsed, // Defaults to 'SYSTEM' if not provided
             },
@@ -156,6 +187,8 @@ commentsRouter.patch('/:id/status', async (req, res) => {
             where: { id: comment.id },
             data: {
                 status: newStatus,
+                reviewedById: newStatus === 'FLAGGED' ? null : changedById, // Optional user ID for the change
+                flaggedById: newStatus === 'FLAGGED' ? changedById : null, // Set flaggedById if status is FLAGGED, else set it back to null
             },
         })
         res.status(201).json(updatedComment)
