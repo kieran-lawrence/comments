@@ -20,5 +20,6 @@ statusChangesRouter.get('/', async (req, res) => {
     } catch (error) {
         console.error('Error fetching status changes:', error)
         res.status(500).json({ error: 'Internal server error' })
+        return
     }
 })
