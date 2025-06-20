@@ -11,6 +11,8 @@
     --color-text-primary: #161616;
     --color-text-primary-hover: #16161677;
     --color-text-secondary: #6F6F6F;
+    --color-border-primary: #525252;
+
 }
 * {
     margin: 0;
