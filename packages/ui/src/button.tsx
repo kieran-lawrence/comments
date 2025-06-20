@@ -15,6 +15,7 @@ export const Button = ({ onClick, type, icon, status }: ButtonProps) => {
     return (
         <button
             className="commentsButton"
+            aria-label={`${type === 'approve' ? 'Approve' : 'Reject'} comment`}
             style={{
                 borderColor: textColor,
                 background: backgroundColor,
