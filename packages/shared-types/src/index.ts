@@ -107,3 +107,12 @@ export type UpdateCommentStatusProps = {
     userId: number
     changedBy: CommentStatusChangeBy
 }
+export type UpdateArticleStatusProps = {
+    id: Schema_Article['id']
+    articleId: Schema_Article['articleId']
+    status: ArticleCommentingStatus
+}
+export type UpdateArticleProps = Pick<
+    Partial<Schema_Article>,
+    'articleId' | 'articleUrl' | 'articleTitle' | 'status'
+> & { id: Schema_Article['id'] }
