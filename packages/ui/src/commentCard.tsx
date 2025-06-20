@@ -2,11 +2,7 @@ import './styles/commentCard.css'
 import { Button } from './button'
 import { FlagIcon } from './icons/flagIcon'
 import { ReplyingToIcon } from './icons/replyingToIcon'
-import {
-    CommentStatus,
-    Schema_Comment,
-    UpdateCommentStatusProps,
-} from '@repo/shared-types'
+import { Schema_Comment, UpdateCommentStatusProps } from '@repo/shared-types'
 import { formatDistance } from 'date-fns'
 import { LinkIcon } from './icons/linkIcon'
 import { ExternalLinkIcon } from './icons/externalLinkIcon'
@@ -138,7 +134,7 @@ export const Comment = ({ comment, onCommentReview }: CommentProps) => {
                     >
                         View In Article
                     </a>
-                    <ExternalLinkIcon />
+                    <ExternalLinkIcon size={18} />
                 </span>
             </div>
         </article>
