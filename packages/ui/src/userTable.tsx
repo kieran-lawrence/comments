@@ -1,61 +1,75 @@
-// Waiting for the data to be provided from the API before adding more properties.
-// Account Status type implementation may need to be tweaked once the API is ready.
+import { Schema_User } from '@repo/shared-types'
+import { formatDistance } from 'date-fns'
 
-import './styles/userTable.css'
+type AccountStatusProps = { users: Schema_User[] }
 
-type AccountStatus = 'active' | 'suspended' | 'banned'
-type AccountStatusProps = { type: AccountStatus }
-
-export const UserTable = ({ type }: AccountStatusProps) => {
+// TODO: Add email address into database schema
+export const UserTable = ({ users }: AccountStatusProps) => {
     return (
-        <table>
+        <table className="w-full text-left flex flex-col gap-2">
             <thead>
-                <tr>
-                    <th className="test">Name</th>
-                    <th>Email Address</th>
-                    <th>Account Status</th>
-                    <th>Role</th>
-                    <th>Joined</th>
+                <tr className="grid grid-cols-[25%_25%_1fr_1fr_1fr] w-full px-4">
+                    <th className="textTitleItemMd text-text-primary">Name</th>
+                    <th className="textTitleItemMd text-text-primary">
+                        Email Address
+                    </th>
+                    <th className="textTitleItemMd text-text-primary">
+                        Account Status
+                    </th>
+                    <th className="textTitleItemMd text-text-primary">Role</th>
+                    <th className="textTitleItemMd text-text-primary">
+                        Joined
+                    </th>
                 </tr>
             </thead>
-            <tbody>
-                <UserTableRow type={type} />
-                <UserTableRow type={type} />
+            <tbody className="flex flex-col gap-2">
+                {users.map((user) => (
+                    <UserTableRow key={user.id} user={user} />
+                ))}
             </tbody>
         </table>
     )
 }
 
-export const UserTableRow = ({ type }: AccountStatusProps) => {
-    const { textColor } = getAccountStatusConfig(type)
+export const UserTableRow = ({ user }: { user: Schema_User }) => {
+    const { textColor, status } = getAccountStatusConfig(user)
     return (
-        <tr>
-            <td>John Smith</td>
-            <td>john.smith7@yahoo.com.au</td>
-            <td style={{ color: textColor }}>TextColorChange</td>
-            <td>User</td>
-            <td>just now</td>
+        <tr className="grid grid-cols-[25%_25%_1fr_1fr_1fr] w-full rounded-sm px-4 py-2 bg-bg-card">
+            <td className="textTitleItemMd font-normal">{user.name}</td>
+            {/* <td>{user.email}</td> */}
+            <td className="textTitleItemMd font-normal">example@gmail.com</td>
+            <td
+                className="textTitleItemMd font-semibold"
+                style={{ color: textColor }}
+            >
+                {status}
+            </td>
+            <td className="textTitleItemMd font-normal capitalize">
+                {user.role.toLowerCase()}
+            </td>
+            <td className="textTitleItemMd font-normal text-border-primary">
+                {formatDistance(new Date(user.createdAt), new Date(), {
+                    addSuffix: true,
+                })}
+            </td>
         </tr>
     )
 }
 
-type AccountStatusConfig = {
-    textColor: string
-}
-
-const getAccountStatusConfig = (type: AccountStatus) => {
-    switch (type) {
-        case 'active':
-            return {
-                textColor: '#034211',
-            }
-        case 'suspended':
-            return {
-                textColor: '#EBB018',
-            }
-        case 'banned':
-            return {
-                textColor: '#420000',
-            }
+const getAccountStatusConfig = (user: Schema_User) => {
+    if (user.active) {
+        return {
+            status: 'Active',
+            textColor: '#034211',
+        }
+    } else if (user.suspended) {
+        return {
+            status: 'Suspended',
+            textColor: '#EBB018',
+        }
+    }
+    return {
+        status: 'Banned',
+        textColor: '#420000',
     }
 }
