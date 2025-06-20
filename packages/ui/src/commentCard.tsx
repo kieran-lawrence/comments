@@ -99,7 +99,8 @@ export const Comment = ({ comment, onCommentReview }: CommentProps) => {
                             changedBy: 'STAFF',
                         })
                     }
-                    type={getButtonStateForStatus('approve', status)}
+                    status={comment.status}
+                    type="approve"
                 />
                 <Button
                     onClick={() =>
@@ -110,7 +111,8 @@ export const Comment = ({ comment, onCommentReview }: CommentProps) => {
                             changedBy: 'STAFF',
                         })
                     }
-                    type={getButtonStateForStatus('reject', status)}
+                    status={comment.status}
+                    type="reject"
                 />
                 {reviewedBy && (
                     <div className="commentReviewedBy">
@@ -141,23 +143,4 @@ export const Comment = ({ comment, onCommentReview }: CommentProps) => {
             </div>
         </article>
     )
-}
-
-/** Returns the correct button state based on the current comment status and button type */
-const getButtonStateForStatus = (
-    buttonType: 'approve' | 'reject',
-    status: CommentStatus,
-) => {
-    switch (status) {
-        case 'APPROVED':
-            return buttonType === 'approve' ? 'approved' : 'reject-neutral'
-        case 'REJECTED':
-            return buttonType === 'approve' ? 'approve-neutral' : 'rejected'
-        case 'PENDING':
-            return buttonType === 'approve'
-                ? 'approve-pending'
-                : 'reject-pending'
-        case 'FLAGGED':
-            return buttonType === 'approve' ? 'approved' : 'reject-neutral'
-    }
 }
