@@ -24,6 +24,7 @@ CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'USER',
+    "email" TEXT NOT NULL UNIQUE,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "siteId" TEXT NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
