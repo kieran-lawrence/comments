@@ -35,7 +35,7 @@ commentsRouter.get('/', async (req, res) => {
                 createdAt: 'desc',
             },
             take: 15, // Limit to 15 comments
-            skip: parsedPageNumber, // Page number for pagination
+            skip: parsedPageNumber * 15, // Correctly calculate offset for pagination
         })
         res.status(200).json(comments)
     } catch (error) {
