@@ -44,6 +44,38 @@ commentsRouter.get('/', async (req, res) => {
         return
     }
 })
+// GET /comments/:articleId
+commentsRouter.get('/:articleId', async (req, res) => {
+    const id = parseInt(req.params.articleId)
+    if (!id) {
+        res.status(400).json({ error: 'Invalid article ID' })
+        return
+    }
+    try {
+        const comments = await prisma.comment.findMany({
+            where: {
+                article: { id },
+                status: 'APPROVED', // Only fetch approved comments
+            },
+            include: {
+                author: true,
+                parent: {
+                    include: {
+                        author: true,
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        })
+        res.status(200).json(comments)
+    } catch (error) {
+        console.error('Error fetching comments for article:', error)
+        res.status(500).json({ error: 'Internal server error' })
+        return
+    }
+})
 
 // POST /comments
 commentsRouter.post('/', async (req, res) => {
