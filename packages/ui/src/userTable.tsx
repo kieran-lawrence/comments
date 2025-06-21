@@ -3,12 +3,11 @@ import { formatDistance } from 'date-fns'
 
 type AccountStatusProps = { users: Schema_User[] }
 
-// TODO: Add email address into database schema
 export const UserTable = ({ users }: AccountStatusProps) => {
     return (
         <table className="w-full text-left flex flex-col gap-2">
             <thead>
-                <tr className="grid grid-cols-[25%_25%_1fr_1fr_1fr] w-full px-4">
+                <tr className="grid grid-cols-[20%_35%_1.5fr_1fr_1.5fr] w-full px-4">
                     <th className="textTitleItemMd text-text-primary">Name</th>
                     <th className="textTitleItemMd text-text-primary">
                         Email Address
@@ -34,10 +33,9 @@ export const UserTable = ({ users }: AccountStatusProps) => {
 export const UserTableRow = ({ user }: { user: Schema_User }) => {
     const { textColor, status } = getAccountStatusConfig(user)
     return (
-        <tr className="grid grid-cols-[25%_25%_1fr_1fr_1fr] w-full rounded-sm px-4 py-2 bg-bg-card">
+        <tr className="grid grid-cols-[20%_35%_1.5fr_1fr_1.5fr] w-full rounded-sm px-4 py-2 bg-bg-card">
             <td className="textTitleItemMd font-normal">{user.name}</td>
-            {/* <td>{user.email}</td> */}
-            <td className="textTitleItemMd font-normal">example@gmail.com</td>
+            <td className="textTitleItemMd font-normal">{user.email}</td>
             <td
                 className="textTitleItemMd font-semibold"
                 style={{ color: textColor }}
