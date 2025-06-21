@@ -21,9 +21,6 @@
 @layer components {
     .menuItem {
         display:flex;
-        align-items: center;
-        gap: 5px;
-        padding: 12px 0;
         border-top:8px solid var(--color-bg-menu);
         transition: all 0.25s ease;
         &:is(:hover, :focus-within) {
