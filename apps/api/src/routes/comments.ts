@@ -9,9 +9,11 @@ export const commentsRouter = Router()
 
 // GET /comments
 commentsRouter.get('/', async (req, res) => {
-    const { siteId } = req.query
+    const { siteId, page } = req.query
 
     try {
+        const parsedPageNumber = typeof page === 'string' ? parseInt(page) : 0
+
         const comments = await prisma.comment.findMany({
             where: {
                 article: {
@@ -29,6 +31,11 @@ commentsRouter.get('/', async (req, res) => {
                     },
                 },
             },
+            orderBy: {
+                createdAt: 'desc',
+            },
+            take: 15, // Limit to 15 comments
+            skip: parsedPageNumber * 15, // Correctly calculate offset for pagination
         })
         res.status(200).json(comments)
     } catch (error) {

@@ -3,6 +3,7 @@ import {
     Schema_Comment,
     Schema_CommentStatusChange,
     Schema_User,
+    UpdateArticleProps,
     UpdateCommentStatusProps,
 } from '@repo/shared-types'
 
@@ -115,5 +116,39 @@ export const getStatusChanges = async (): Promise<
     }
 
     const res: Schema_CommentStatusChange[] = await response.json()
+    return res
+}
+// Calls the API to update an article's details
+export const updateArticle = async ({
+    id,
+    articleId,
+    articleUrl,
+    articleTitle,
+    status,
+}: UpdateArticleProps): Promise<Schema_Article> => {
+    console.log('Updating article:', {
+        articleId,
+        status,
+    })
+
+    const url = `${import.meta.env.VITE_API_URL}/articles/${id}`
+    const response = await fetch(url, {
+        method: 'PATCH',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'x-api-key': import.meta.env.VITE_API_KEY,
+        },
+        body: JSON.stringify({
+            articleId,
+            articleUrl,
+            articleTitle,
+            status,
+        }),
+    })
+    if (!response.ok) {
+        throw new Error('Unable to update Article')
+    }
+    const res: Schema_Article = await response.json()
     return res
 }
