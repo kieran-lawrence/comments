@@ -88,23 +88,6 @@
     gap: 4px;
 }
 
-.linksContainer > span > svg {
-    width: 18px;
-    height: 18px;
-}
-
-.commentLink {
-    color: #4b006e;
-    font-weight: 400;
-    text-decoration: underline;
-    text-underline-position: from-font;
-    transition: 0.25s ease;
-}
-
-.commentLink:hover {
-    color: #8000bc;
-}
-
 .commentFlag {
     display: flex;
     align-items: center;

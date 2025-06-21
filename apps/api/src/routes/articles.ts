@@ -7,12 +7,14 @@ export const articlesRouter = Router()
 
 // GET /articles
 articlesRouter.get('/', async (req, res) => {
-    const { searchTerm, status } = req.query
+    const { searchTerm, status, page } = req.query
     try {
         const searchTermString = searchTerm ? String(searchTerm) : undefined
         const parsedStatus = status
             ? articleCommentingStatusSchema.parse(status)
             : undefined
+        const parsedPageNumber = typeof page === 'string' ? parseInt(page) : 0
+
         const allArticles = await prisma.article.findMany({
             include: {
                 comments: {
@@ -41,6 +43,11 @@ articlesRouter.get('/', async (req, res) => {
                     { status: parsedStatus },
                 ],
             },
+            orderBy: {
+                createdAt: 'desc',
+            },
+            take: 15, // Limit to 15 articles
+            skip: parsedPageNumber * 15, // Correctly calculate offset for pagination
         })
         res.status(200).send(allArticles)
     } catch (error) {
@@ -102,7 +109,7 @@ articlesRouter.patch('/:id', async (req, res) => {
     const { articleId, articleUrl, articleTitle, status } =
         req.body as Partial<Article>
 
-    if (!articleId) {
+    if (!id) {
         res.status(400).json({ error: 'Invalid article ID' })
         return
     }

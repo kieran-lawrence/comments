@@ -1,27 +1,30 @@
-import './styles/button.css'
+import { CommentStatus } from '@repo/shared-types'
 
-type ButtonProps = { onClick: () => void; type: ButtonType }
+type ButtonType = 'approve' | 'reject'
+type ButtonProps = {
+    onClick: () => void
+    type: ButtonType
+    icon?: React.ReactNode
+    status: CommentStatus
+}
 
-type ButtonType =
-    | 'approved'
-    | 'rejected'
-    | 'approve-neutral'
-    | 'reject-neutral'
-    | 'approve-pending'
-    | 'reject-pending'
-
-export const Button = ({ onClick, type }: ButtonProps) => {
-    const { textColor, text, backgroundColor } = getButtonConfig(type)
+export const Button = ({ onClick, type, icon, status }: ButtonProps) => {
+    const { textColor, text, backgroundColor } = getButtonConfig(
+        getButtonStateForStatus(type, status),
+    )
     return (
         <button
+            className="commentsButton"
+            aria-label={`${type === 'approve' ? 'Approve' : 'Reject'} comment`}
             style={{
                 borderColor: textColor,
                 background: backgroundColor,
                 color: textColor,
+                padding: icon ? '6px 12px' : '12px 24px',
             }}
             onClick={onClick}
         >
-            {text}
+            {icon ? icon : text}
         </button>
     )
 }
@@ -31,7 +34,15 @@ type ButtonConfig = {
     backgroundColor: string
     textColor: string
 }
-const getButtonConfig = (type: ButtonType): ButtonConfig => {
+type ButtonStates =
+    | 'approved'
+    | 'rejected'
+    | 'approve-neutral'
+    | 'reject-neutral'
+    | 'approve-pending'
+    | 'reject-pending'
+
+const getButtonConfig = (type: ButtonStates): ButtonConfig => {
     switch (type) {
         case 'approved':
             return {
@@ -69,5 +80,24 @@ const getButtonConfig = (type: ButtonType): ButtonConfig => {
                 backgroundColor: '#FFC3C7',
                 textColor: '#420000',
             }
+    }
+}
+
+/** Returns the correct button state based on the current comment status and button type */
+const getButtonStateForStatus = (
+    buttonType: 'approve' | 'reject',
+    status: CommentStatus,
+) => {
+    switch (status) {
+        case 'APPROVED':
+            return buttonType === 'approve' ? 'approved' : 'reject-neutral'
+        case 'REJECTED':
+            return buttonType === 'approve' ? 'approve-neutral' : 'rejected'
+        case 'PENDING':
+            return buttonType === 'approve'
+                ? 'approve-pending'
+                : 'reject-pending'
+        case 'FLAGGED':
+            return buttonType === 'approve' ? 'approved' : 'reject-neutral'
     }
 }
