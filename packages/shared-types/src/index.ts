@@ -56,6 +56,7 @@ export type Schema_CommentStatusChange = {
     changedById?: number
     changedReason?: string
     changedAt: string
+    comment: Schema_Comment
 }
 
 export type Schema_Article = {
