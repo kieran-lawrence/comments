@@ -66,7 +66,10 @@ export const Comment = ({ comment, onCommentReview }: CommentProps) => {
                         </div>
                     )}
                 </div>
-                <button onClick={handleLinkButtonClick}>
+                <button
+                    className="rounded-sm border-1 border-border-primary"
+                    onClick={handleLinkButtonClick}
+                >
                     <LinkIcon />
                     <span id={`copyLinkText-${comment.id}`}>Copy Link</span>
                 </button>
