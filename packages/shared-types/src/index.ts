@@ -26,6 +26,7 @@ export type Schema_User = {
     id: number
     name: string
     role: Role
+    email: string
     createdAt: string
     site: Schema_Site
     siteId: string
