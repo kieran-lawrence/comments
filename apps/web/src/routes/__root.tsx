@@ -73,8 +73,13 @@ function Layout() {
                             // If the current path matches the link's path, add the 'active' class
                             className={`menuItem ${currentPath === link.to ? 'active' : ''}`}
                         >
-                            {link.icon}
-                            <Link to={link.to}>{link.label}</Link>
+                            <Link
+                                className="flex gap-1 items-center py-3"
+                                to={link.to}
+                            >
+                                {link.icon}
+                                {link.label}
+                            </Link>
                         </li>
                     ))}
                 </ul>
