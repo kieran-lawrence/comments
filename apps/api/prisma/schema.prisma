@@ -25,6 +25,7 @@ model User {
   id                   Int                    @id @default(autoincrement())
   name                 String
   role                 Role                   @default(USER)
+  email                String                 @unique
   createdAt            DateTime               @default(now())
   site                 Site                   @relation(fields: [siteId], references: [id])
   siteId               String
