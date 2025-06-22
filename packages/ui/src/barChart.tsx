@@ -1,3 +1,4 @@
+import { NewUserResponse } from '@repo/shared-types'
 import {
     ChartContainer,
     type ChartConfig,
@@ -5,16 +6,7 @@ import {
     ChartTooltipContent,
 } from './chart'
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
-
-const chartData = [
-    { month: 'Monday', members: 9 },
-    { month: 'Tuesday', members: 3 },
-    { month: 'Wednesday', members: 6 },
-    { month: 'Thursday', members: 2 },
-    { month: 'Friday', members: 0 },
-    { month: 'Saturday', members: 0 },
-    { month: 'Sunday', members: 1 },
-]
+import { format } from 'date-fns'
 
 const chartConfig = {
     members: {
@@ -22,19 +14,27 @@ const chartConfig = {
     },
 } satisfies ChartConfig
 
-export const BarChartComponent = () => {
+export const BarChartComponent = ({
+    newUsersLast7Days,
+}: {
+    newUsersLast7Days: NewUserResponse[]
+}) => {
+    const chartData = newUsersLast7Days.map((user) => ({
+        day: format(new Date(user.date), 'EEE'),
+        members: user.userCount,
+    }))
     return (
-        <ChartContainer config={chartConfig} className="max-h-64 w-full">
+        <ChartContainer config={chartConfig} className="grow min-h-0 w-full">
             <BarChart accessibilityLayer data={chartData}>
                 <CartesianGrid vertical={false} />
                 <XAxis
-                    dataKey="month"
+                    dataKey="day"
                     tickLine={false}
                     tickMargin={10}
                     axisLine={false}
                     tickFormatter={(value) => value.slice(0, 3)}
                 />
-                <YAxis />
+                <YAxis width={10} />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar
                     dataKey="members"

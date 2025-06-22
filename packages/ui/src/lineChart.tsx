@@ -1,4 +1,4 @@
-import { CartesianGrid, Line, LineChart, XAxis } from 'recharts'
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from './card'
 import {
     ChartConfig,
@@ -6,20 +6,8 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from './chart'
-
-const chartData = [
-    { time: '6pm', commentCount: 23 },
-    { time: '8pm', commentCount: 37 },
-    { time: '10pm', commentCount: 19 },
-    { time: '12am', commentCount: 3 },
-    { time: '2am', commentCount: 2 },
-    { time: '6am', commentCount: 9 },
-    { time: '8am', commentCount: 13 },
-    { time: '10am', commentCount: 8 },
-    { time: '12pm', commentCount: 17 },
-    { time: '2pm', commentCount: 16 },
-    { time: '4pm', commentCount: 22 },
-]
+import { RecentCommentsResponse } from '@repo/shared-types'
+import { format } from 'date-fns'
 
 const chartConfig = {
     commentCount: {
@@ -27,7 +15,16 @@ const chartConfig = {
     },
 } satisfies ChartConfig
 
-export const LineChartComponent = () => {
+export const LineChartComponent = ({
+    commentsLast24Hours,
+}: {
+    commentsLast24Hours: RecentCommentsResponse[]
+}) => {
+    // Transform the data to match the expected format for the chart
+    const chartData = commentsLast24Hours.map(({ hour, commentCount }) => ({
+        time: format(new Date(hour), 'h a'),
+        commentCount,
+    }))
     return (
         <Card>
             <CardHeader>
@@ -50,15 +47,16 @@ export const LineChartComponent = () => {
                             dataKey="time"
                             tickLine={true}
                             axisLine={false}
-                            tickMargin={4}
+                            tickMargin={12}
                         />
+                        <YAxis width={5} />
                         <ChartTooltip
                             cursor={true}
                             content={<ChartTooltipContent hideLabel />}
                         />
                         <Line
                             dataKey="commentCount"
-                            type="natural"
+                            type="monotone"
                             stroke="var(--color-graph-primary)"
                             strokeWidth={2}
                             dot={{
