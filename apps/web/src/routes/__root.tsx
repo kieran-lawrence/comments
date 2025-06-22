@@ -45,8 +45,8 @@ function Layout() {
 
     // Define the navigation links
     const navLinks: NavigationLink[] = [
-        { to: '/dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
-        { to: '/', label: 'Moderate', icon: <ModerateIcon /> },
+        { to: '/', label: 'Dashboard', icon: <DashboardIcon /> },
+        { to: '/moderate', label: 'Moderate', icon: <ModerateIcon /> },
         { to: '/articles', label: 'Articles', icon: <ArticleIcon /> },
         { to: '/users', label: 'Users', icon: <UserIcon /> },
         { to: '/settings', label: 'Settings', icon: <SettingsIcon /> },
