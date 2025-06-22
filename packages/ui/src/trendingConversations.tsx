@@ -1,4 +1,5 @@
 import { TopCommentResponse } from '@repo/shared-types'
+import { Link } from '@tanstack/react-router'
 
 export const TrendingConversations = ({
     topCommentsToday,
@@ -29,12 +30,12 @@ export const TrendingConversations = ({
                                 key={articleId}
                             >
                                 <td>
-                                    <a
-                                        className="commentLink"
-                                        href={`/articles#${articleId}?expanded=true`}
+                                    <Link
+                                        to="commentLink"
+                                        href={`/articles#articleCard-${articleId}?expanded=true`}
                                     >
                                         {articleTitle}
-                                    </a>
+                                    </Link>
                                 </td>
                                 <td>{commentCount}</td>
                             </tr>
