@@ -12,6 +12,9 @@
     --color-text-secondary: #6F6F6F;
     --color-link-primary: #4B006E;
     --color-border-primary: #525252;
+    --spacing-sidebar: calc(var(--spacing) * 88);
+    --spacing-main-content: calc(var(--spacing) * 275);
+    --spacing-main-content-only: calc(var(--spacing) * 367);
 }
 * {
     margin: 0;
