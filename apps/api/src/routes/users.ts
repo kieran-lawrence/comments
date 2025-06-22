@@ -26,11 +26,11 @@ usersRouter.get('/', async (req, res) => {
 
 // POST /users
 usersRouter.post('/', async (req, res) => {
-    const { name, siteId } = req.body
+    const { name, siteId, email } = req.body
 
-    if (!name || !siteId) {
+    if (!name || !siteId || !email) {
         res.status(400).json({
-            error: 'Missing one or more of the following required fields: name, siteId',
+            error: 'Missing one or more of the following required fields: name, siteId, email',
         })
         return
     }
@@ -40,6 +40,7 @@ usersRouter.post('/', async (req, res) => {
             data: {
                 name,
                 siteId,
+                email,
             },
         })
 
