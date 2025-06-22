@@ -58,16 +58,16 @@ const getAccountStatusConfig = (user: Schema_User) => {
     if (user.active) {
         return {
             status: 'Active',
-            textColor: '#034211',
+            textColor: 'var(--color-text-success-dark)',
         }
     } else if (user.suspended) {
         return {
             status: 'Suspended',
-            textColor: '#EBB018',
+            textColor: 'var(--color-text-warn)',
         }
     }
     return {
         status: 'Banned',
-        textColor: '#420000',
+        textColor: 'var(--color-text-error)',
     }
 }

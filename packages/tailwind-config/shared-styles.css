@@ -5,11 +5,18 @@
 @theme {
     --color-text-menu-hover: #00E9FF;
     --color-bg-menu: #0D0D0D;
+    --color-bg-success: #D0F9D9;
+    --color-bg-warn: #FFEDBD;
+    --color-bg-error: #FFC3C7;
     --color-primary: #FAFAFA;
     --color-bg-card: #F4F4F4;
     --color-bg-card-alt: #E0E0E0;
     --color-text-primary: #161616;
     --color-text-secondary: #6F6F6F;
+    --color-text-success: #20BA42;
+    --color-text-success-dark: #034211;
+    --color-text-warn: #EBB018;
+    --color-text-error: #420000;
     --color-link-primary: #4B006E;
     --color-border-primary: #525252;
     --spacing-sidebar: calc(var(--spacing) * 88);
@@ -73,7 +80,7 @@
         flex-direction: column;
         justify-content: center;
         gap: calc(var(--spacing) * 2);
-        width: 50%;
+        padding: 16px;
     }
     /* Text Theme Variables */
     .textTitleItemXlg {

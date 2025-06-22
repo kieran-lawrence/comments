@@ -47,38 +47,38 @@ const getButtonConfig = (type: ButtonStates): ButtonConfig => {
         case 'approved':
             return {
                 text: 'approved',
-                backgroundColor: '#D0F9D9',
-                textColor: '#034211',
+                backgroundColor: 'var(--color-bg-success)',
+                textColor: 'var(--color-text-success-dark)',
             }
         case 'rejected':
             return {
                 text: 'rejected',
-                backgroundColor: '#FFC3C7',
-                textColor: '#420000',
+                backgroundColor: 'var(--color-bg-error)',
+                textColor: 'var(--color-text-error)',
             }
         case 'approve-neutral':
             return {
                 text: 'approve',
                 backgroundColor: 'none',
-                textColor: '#161616',
+                textColor: 'var(--color-text-primary)',
             }
         case 'reject-neutral':
             return {
                 text: 'reject',
                 backgroundColor: 'none',
-                textColor: '#161616',
+                textColor: 'var(--color-text-primary)',
             }
         case 'approve-pending':
             return {
                 text: 'approve',
-                backgroundColor: '#D0F9D9',
-                textColor: '#034211',
+                backgroundColor: 'var(--color-bg-success)',
+                textColor: 'var(--color-text-success-dark)',
             }
         case 'reject-pending':
             return {
                 text: 'reject',
-                backgroundColor: '#FFC3C7',
-                textColor: '#420000',
+                backgroundColor: 'var(--color-bg-error)',
+                textColor: 'var(--color-text-error)',
             }
     }
 }
