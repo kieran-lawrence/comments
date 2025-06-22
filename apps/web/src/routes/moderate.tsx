@@ -5,11 +5,10 @@ import { getComments, updateCommentStatus } from '../services/api'
 import { UpdateCommentStatusProps } from '@repo/shared-types'
 
 export const Route = createFileRoute('/moderate')({
-    component: HomePage,
+    component: ModeratePage,
 })
 
-// The homepage in our app is technically the "Moderate" page
-function HomePage() {
+function ModeratePage() {
     const {
         data: comments,
         isLoading,

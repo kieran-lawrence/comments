@@ -4,10 +4,10 @@ import { createFileRoute } from '@tanstack/react-router'
 import { getStatistics } from '../services/api'
 
 export const Route = createFileRoute('/')({
-    component: RouteComponent,
+    component: DashboardPage,
 })
 
-function RouteComponent() {
+function DashboardPage() {
     const {
         data: statisticData,
         isLoading,
