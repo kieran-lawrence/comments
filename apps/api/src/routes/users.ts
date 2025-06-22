@@ -16,6 +16,9 @@ usersRouter.get('/', async (req, res) => {
                 reviewedComments: true,
                 ignoredUsers: true,
             },
+            orderBy: {
+                createdAt: 'desc',
+            },
         })
         res.status(200).send(allUsers)
     } catch (error) {
