@@ -1,3 +1,4 @@
+import { CommentsDashboard, PageLayout } from '@repo/ui'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/dashboard')({
@@ -5,5 +6,5 @@ export const Route = createFileRoute('/dashboard')({
 })
 
 function RouteComponent() {
-    return <div>Hello "/dashboard"!</div>
+    return <PageLayout mainContent={<CommentsDashboard />} />
 }

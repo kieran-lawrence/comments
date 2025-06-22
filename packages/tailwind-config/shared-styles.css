@@ -15,6 +15,7 @@
     --spacing-sidebar: calc(var(--spacing) * 88);
     --spacing-main-content: calc(var(--spacing) * 275);
     --spacing-main-content-only: calc(var(--spacing) * 367);
+    --color-graph-primary: #7D4895;
 }
 * {
     margin: 0;
@@ -67,7 +68,22 @@
             color: color-mix(in oklab, var(--color-link-primary) 50%, transparent);
         }
     }
+    .commentsDashboardSummaryItem {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: calc(var(--spacing) * 2);
+        width: 50%;
+    }
     /* Text Theme Variables */
+    .textTitleItemXlg {
+        font-family: Inter;
+        font-size: 56px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 100%;
+        letter-spacing: -0.32px;
+    }
     .textTitleItemLg {
         font-family: Inter;
         font-size: 20px;
