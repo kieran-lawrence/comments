@@ -12,6 +12,7 @@ import { Button } from './button'
 import { CheckIcon } from './icons/checkIcon'
 import { CrossIcon } from './icons/crossIcon'
 import { ExternalLinkIcon } from './icons/externalLinkIcon'
+import { Link } from '@tanstack/react-router'
 
 type ArticlesTableProps = {
     articles: Schema_Article[]
@@ -67,7 +68,10 @@ const ArticleTableRow = ({
 }: ArticleRowProps) => {
     const [isOpen, setIsOpen] = useState(false)
     return (
-        <tr className="grid grid-cols-[55%_1fr_1fr_1fr_1fr] px-4 py-2 bg-bg-card rounded-sm">
+        <tr
+            id={`articleCard-${article.articleId}`}
+            className="grid grid-cols-[55%_1fr_1fr_1fr_1fr] px-4 py-2 bg-bg-card rounded-sm"
+        >
             <td>
                 <div className="flex flex-col gap-2">
                     <p className="textTitleItemMd font-normal underline underline-offset-2">
@@ -129,12 +133,12 @@ const ArticleTableRow = ({
                                     )}
                                 </time>
                             </span>
-                            <a
-                                href={`/#commentCard-${comment.id}`}
+                            <Link
+                                to={`/moderate#commentCard-${comment.id}`}
                                 className="textTitleItemSm grow line-clamp-1 overflow-ellipsis hover:underline"
                             >
                                 {comment.content}
-                            </a>
+                            </Link>
                             <div className="flex gap-1 flex-shrink-0">
                                 <Button
                                     onClick={() =>
@@ -176,9 +180,9 @@ const ArticleTableRow = ({
                 className={`col-span-6 h-full w-full flex row-start-3 items-end justify-between`}
             >
                 <span className="commentLink flex items-center gap-2 bg-bg-card">
-                    <a href={article.articleUrl} target="_blank">
+                    <Link to={article.articleUrl} target="_blank">
                         View Article
-                    </a>
+                    </Link>
                     <ExternalLinkIcon size={18} />
                 </span>
                 <button

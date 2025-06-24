@@ -5,6 +5,7 @@ import { usersRouter } from './routes/users'
 import { articlesRouter } from './routes/articles'
 import cors from 'cors'
 import { statusChangesRouter } from './routes/status-changes'
+import { statisticsRouter } from './routes/statistics'
 
 // Initialise Express
 const app = express()
@@ -50,6 +51,7 @@ app.use('/sites', sitesRouter)
 app.use('/users', usersRouter)
 app.use('/articles', articlesRouter)
 app.use('/status-changes', statusChangesRouter)
+app.use('/statistics', statisticsRouter)
 
 // Start the server
 app.listen(PORT, () => {

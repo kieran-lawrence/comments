@@ -66,12 +66,12 @@ const CommentStatusChangesTableRow = ({
 const getStatusColours = (status: CommentStatus) => {
     switch (status) {
         case 'APPROVED':
-            return '#034211'
+            return 'var(--color-text-success-dark'
         case 'REJECTED':
-            return '#420000'
+            return 'var(--color-text-error)'
         case 'FLAGGED':
-            return '#EBB018'
+            return 'var(--color-text-warn)'
         default:
-            return '#161616'
+            return 'var(--color-text-primary)'
     }
 }

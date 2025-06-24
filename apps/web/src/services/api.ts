@@ -2,6 +2,7 @@ import {
     Schema_Article,
     Schema_Comment,
     Schema_CommentStatusChange,
+    StatisticsResponse,
     Schema_User,
     UpdateArticleProps,
     UpdateCommentStatusProps,
@@ -150,5 +151,22 @@ export const updateArticle = async ({
         throw new Error('Unable to update Article')
     }
     const res: Schema_Article = await response.json()
+    return res
+}
+
+export const getStatistics = async (): Promise<StatisticsResponse> => {
+    const url = `${import.meta.env.VITE_API_URL}/statistics`
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            Accept: 'application/json',
+            'x-api-key': import.meta.env.VITE_API_KEY,
+        },
+    })
+    if (!response.ok) {
+        throw new Error('Unable to get statistics data')
+    }
+    const res: StatisticsResponse = await response.json()
     return res
 }

@@ -45,8 +45,8 @@ function Layout() {
 
     // Define the navigation links
     const navLinks: NavigationLink[] = [
-        { to: '/dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
-        { to: '/', label: 'Moderate', icon: <ModerateIcon /> },
+        { to: '/', label: 'Dashboard', icon: <DashboardIcon /> },
+        { to: '/moderate', label: 'Moderate', icon: <ModerateIcon /> },
         { to: '/articles', label: 'Articles', icon: <ArticleIcon /> },
         { to: '/users', label: 'Users', icon: <UserIcon /> },
         { to: '/settings', label: 'Settings', icon: <SettingsIcon /> },
@@ -89,7 +89,35 @@ function Layout() {
                     The Nightly
                 </div>
             </nav>
+            {ScrollToHashOnRouteChange()}
             <Outlet />
         </>
     )
+}
+
+// This component scrolls to the element with the ID matching the current URL hash
+function ScrollToHashOnRouteChange() {
+    const router = useRouter()
+
+    useEffect(() => {
+        const unsub = router.subscribe('onLoad', () => {
+            // Wait for DOM updates
+            setTimeout(() => {
+                if (window.location.hash) {
+                    const el = document.getElementById(
+                        window.location.hash.slice(1),
+                    )
+                    if (el) {
+                        el.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start',
+                        })
+                    }
+                }
+            }, 0)
+        })
+        return unsub
+    }, [router])
+
+    return null
 }
