@@ -6,6 +6,7 @@ import { articlesRouter } from './routes/articles'
 import cors from 'cors'
 import { statusChangesRouter } from './routes/status-changes'
 import { statisticsRouter } from './routes/statistics'
+import { logger } from './logger'
 
 // Initialise Express
 const app = express()
@@ -55,5 +56,5 @@ app.use('/statistics', statisticsRouter)
 
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Comments API listening on port ${PORT}`)
+    logger.info(`Comments API listening on port ${PORT}`)
 })
