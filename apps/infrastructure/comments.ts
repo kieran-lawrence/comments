@@ -40,7 +40,7 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             vpcId: vpc.id,
             cidrBlock: '10.0.1.0/24',
             availabilityZone: 'ap-southeast-2a',
-            mapPublicIpOnLaunch: true, // Allows instances in this subnet to have public IPs
+            // mapPublicIpOnLaunch: true, // Allows instances in this subnet to have public IPs
         })
         const subnetB = new aws.ec2.Subnet(`${name}-subnet-b`, {
             vpcId: vpc.id,
