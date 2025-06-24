@@ -77,12 +77,12 @@ articlesRouter.get('/:id/count', async (req, res) => {
 
 // POST /articles
 articlesRouter.post('/', async (req, res) => {
-    const { articleId, articleUrl, articleTitle, authorId, siteId } =
+    const { articleId, articleUrl, articleTitle, authorId } =
         req.body as Article
 
-    if (!articleId || !articleUrl || !articleTitle || !authorId || !siteId) {
+    if (!articleId || !articleUrl || !articleTitle || !authorId) {
         res.status(400).json({
-            error: 'Missing one or more of the following required fields: articleId, articleUrl, articleTitle, authorId, siteId',
+            error: 'Missing one or more of the following required fields: articleId, articleUrl, articleTitle, authorId',
         })
         return
     }
@@ -94,7 +94,6 @@ articlesRouter.post('/', async (req, res) => {
                 articleUrl,
                 articleTitle,
                 authorId,
-                siteId,
             },
         })
         res.status(201).json(newArticle)

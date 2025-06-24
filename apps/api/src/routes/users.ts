@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { PrismaClient } from '@prisma/client'
 import { Role } from '../types/types'
+import { logger } from '../logger'
 
 const prisma = new PrismaClient()
 export const usersRouter = Router()
@@ -32,8 +33,9 @@ usersRouter.post('/', async (req, res) => {
     const { name, siteId, email } = req.body
 
     if (!name || !siteId || !email) {
+    if (!userId || !name || !email) {
         res.status(400).json({
-            error: 'Missing one or more of the following required fields: name, siteId, email',
+            error: 'Missing one or more of the following required fields: userId, name, email',
         })
         return
     }
@@ -41,11 +43,15 @@ usersRouter.post('/', async (req, res) => {
     try {
         const newUser = await prisma.user.create({
             data: {
+                id: userId,
                 name,
-                siteId,
                 email,
             },
         })
+        logger.info(
+            { id: newUser.id, name: newUser.name, role: newUser.role },
+            'Successfully created user',
+        )
 
         res.status(201).json(newUser)
     } catch (error) {
@@ -56,7 +62,7 @@ usersRouter.post('/', async (req, res) => {
 
 // POST /users/:id/ignore
 usersRouter.post('/:id/ignore', async (req, res) => {
-    const userId = parseInt(req.params.id)
+    const userId = req.params.id
     const { ignore, ignoredId } = req.body
 
     if (!userId || typeof ignore !== 'boolean' || !ignoredId) {
@@ -94,7 +100,7 @@ usersRouter.post('/:id/ignore', async (req, res) => {
 
 // PATCH /users/:id
 usersRouter.patch('/:id', async (req, res) => {
-    const userId = parseInt(req.params.id)
+    const userId = req.params.id
     const { name } = req.body
 
     if (!userId) {
@@ -118,7 +124,7 @@ usersRouter.patch('/:id', async (req, res) => {
 
 // PATCH /users/:id/suspend
 usersRouter.patch('/:id/suspend', async (req, res) => {
-    const userId = parseInt(req.params.id)
+    const userId = req.params.id
     const { suspended, suspendedReason, suspendedUntil, suspendedById } =
         req.body
 
@@ -164,7 +170,7 @@ usersRouter.patch('/:id/suspend', async (req, res) => {
 
 // PATCH /users/:id/role
 usersRouter.patch('/:id/role', async (req, res) => {
-    const userId = parseInt(req.params.id)
+    const userId = req.params.id
     const { role, updatedById } = req.body
 
     if (!userId) {
@@ -201,7 +207,7 @@ usersRouter.patch('/:id/role', async (req, res) => {
 
 // DELETE /users/:id
 usersRouter.delete('/:id', async (req, res) => {
-    const userId = parseInt(req.params.id)
+    const userId = req.params.id
     const { deletedById } = req.body
     if (!userId) {
         res.status(400).json({ error: 'Invalid user ID' })
@@ -235,7 +241,7 @@ usersRouter.delete('/:id', async (req, res) => {
     }
 })
 
-const isAuthorised = async (userId: number, targetUserId: number) => {
+const isAuthorised = async (userId: string, targetUserId: string) => {
     // Map roles to access levels
     const roleAccessLevel: Record<Role, number> = {
         USER: 1,

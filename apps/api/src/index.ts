@@ -1,6 +1,5 @@
 import express from 'express'
 import { commentsRouter } from './routes/comments'
-import { sitesRouter } from './routes/sites'
 import { usersRouter } from './routes/users'
 import { articlesRouter } from './routes/articles'
 import cors from 'cors'
@@ -48,7 +47,6 @@ app.use((req, res, next) => {
 
 // Register routes
 app.use('/comments', commentsRouter)
-app.use('/sites', sitesRouter)
 app.use('/users', usersRouter)
 app.use('/articles', articlesRouter)
 app.use('/status-changes', statusChangesRouter)
