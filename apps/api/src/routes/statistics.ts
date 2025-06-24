@@ -41,7 +41,7 @@ statisticsRouter.get('/', async (req, res) => {
             })
             .reverse() // Reverse the array to have the most recent day first
 
-        // Get a recoprd of all comments
+        // Get a record of all comments
         const allComments = await prisma.comment.findMany()
 
         // Filter down to only comments created today
