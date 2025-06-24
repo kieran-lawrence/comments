@@ -9,17 +9,12 @@ export const commentsRouter = Router()
 
 // GET /comments
 commentsRouter.get('/', async (req, res) => {
-    const { siteId, page } = req.query
+    const { page } = req.query
 
     try {
         const parsedPageNumber = typeof page === 'string' ? parseInt(page) : 0
 
         const comments = await prisma.comment.findMany({
-            where: {
-                article: {
-                    siteId: siteId ? JSON.stringify(siteId) : undefined,
-                },
-            },
             include: {
                 article: true,
                 author: true,
