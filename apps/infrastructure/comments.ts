@@ -188,8 +188,10 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             keyName: 'my-key-pair',
             userData: ecsCluster.name.apply(
                 (clusterName) =>
-                    `#!/bin/bash echo ECS_CLUSTER=${clusterName} >> /etc/ecs/ecs.config 
-                    systemctl enable --now ecs`, // Runs on instance startup, configures the ECS agent to join ECS cluster
+                    `#!/bin/bash
+echo ECS_CLUSTER=${clusterName} >> /etc/ecs/ecs.config
+systemctl enable --now ecs
+`,
             ),
             tags: { Name: `${name}-ecs-instance` },
         })
