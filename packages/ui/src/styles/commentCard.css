@@ -4,10 +4,10 @@
     gap: 8px;
     width: 100%;
     padding: 8px 16px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-bg-card-alt);
     border-radius: 8px;
-    background: #f4f4f4;
-    color: #161616;
+    background: var(--color-bg-card);
+    color: var(--color-text-primary);
     font-size: 16px;
     font-style: normal;
     font-weight: 600;
@@ -45,7 +45,7 @@
     font-weight: 500;
 
     &:hover {
-        background-color: #E0E0E0;
+        background-color: var(--color-bg-card-alt);
     }
 }
 
@@ -55,7 +55,7 @@
 }
 
 .commentDate {
-    color: #525252;
+    color: var(--color-text-secondary);
     font-size: 14px;
     font-weight: 400;
     text-transform: lowercase;
@@ -104,7 +104,7 @@
 }
 
 .commentFlagUser {
-    color: #525252;
+    color: var(--color-text-secondary);
     font-weight: 400;
     text-transform: capitalize;
 }
@@ -113,7 +113,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    color: #525252;
+    color: var(--color-text-secondary);
     font-size: 13px;
     margin-left: 16px;
     line-height: 125%;
@@ -125,7 +125,7 @@
 }
 
 .commentReplyUser {
-    color: #161616;
+    color: var(--color-text-primary);
     font-weight: 700;
 }
 
@@ -137,6 +137,6 @@
 }
 
 .commentReviewedByUser {
-    color: #525252;
+    color: var(--color-text-secondary);
     font-weight: 400;
 }

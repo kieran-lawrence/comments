@@ -6,6 +6,7 @@ import { Schema_Comment, UpdateCommentStatusProps } from '@repo/shared-types'
 import { formatDistance } from 'date-fns'
 import { LinkIcon } from './icons/linkIcon'
 import { ExternalLinkIcon } from './icons/externalLinkIcon'
+import { Link } from '@tanstack/react-router'
 
 type CommentProps = {
     comment: Schema_Comment
@@ -123,20 +124,20 @@ export const Comment = ({ comment, onCommentReview }: CommentProps) => {
                 )}
             </div>
             <div className="linksContainer">
-                <a
-                    className="commentLink"
-                    href={`/articles#${article.articleId}`}
+                <Link
+                    to="commentLink"
+                    href={`/articles#articleCard-${article.articleId}`}
                 >
                     View Conversation
-                </a>
+                </Link>
                 <span className="commentLink">
                     {/* TODO: This anchor won't work until we integrate it onto the frontend site where comments are displayed */}
-                    <a
-                        href={`${comment.article.articleUrl}#comments?focusComment=${comment.id}`}
+                    <Link
+                        to={`${comment.article.articleUrl}#comments?focusComment=${comment.id}`}
                         target="_blank"
                     >
                         View In Article
-                    </a>
+                    </Link>
                     <ExternalLinkIcon size={18} />
                 </span>
             </div>

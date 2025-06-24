@@ -102,7 +102,8 @@ export type Schema_UserIgnoredUsers = {
     ignored: Schema_User
 }
 
-// ------- API Types -------
+// ------- API Parameter Types -------
+// Types representing the parameters passed to API endpoints.
 export type UpdateCommentStatusProps = {
     commentId: number
     status: CommentStatus
@@ -118,3 +119,26 @@ export type UpdateArticleProps = Pick<
     Partial<Schema_Article>,
     'articleId' | 'articleUrl' | 'articleTitle' | 'status'
 > & { id: Schema_Article['id'] }
+
+// ------- API Response Types -------
+// Types representing the structure of data returned by API endpoints.
+export type EngagementSummaryResponse = {
+    newCommentsToday: number
+    pendingComments: number
+    totalComments: Pick<Schema_Comment, 'id' | 'status'>[]
+    activeUsers: number
+}
+export type NewUserResponse = { date: string; userCount: number }
+export type RecentCommentsResponse = { hour: string; commentCount: number }
+export type TopCommentResponse = Pick<
+    Schema_Article,
+    'articleId' | 'articleTitle' | 'articleUrl'
+> & {
+    commentCount: number
+}
+
+export type StatisticsResponse = EngagementSummaryResponse & {
+    newUsersLast7Days: NewUserResponse[]
+    commentsLast24Hours: RecentCommentsResponse[]
+    topCommentsToday: TopCommentResponse[]
+}

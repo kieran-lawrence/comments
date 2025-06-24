@@ -5,13 +5,24 @@
 @theme {
     --color-text-menu-hover: #00E9FF;
     --color-bg-menu: #0D0D0D;
+    --color-bg-success: #D0F9D9;
+    --color-bg-warn: #FFEDBD;
+    --color-bg-error: #FFC3C7;
     --color-primary: #FAFAFA;
     --color-bg-card: #F4F4F4;
     --color-bg-card-alt: #E0E0E0;
     --color-text-primary: #161616;
     --color-text-secondary: #6F6F6F;
+    --color-text-success: #20BA42;
+    --color-text-success-dark: #034211;
+    --color-text-warn: #EBB018;
+    --color-text-error: #420000;
     --color-link-primary: #4B006E;
     --color-border-primary: #525252;
+    --spacing-sidebar: calc(var(--spacing) * 88);
+    --spacing-main-content: calc(var(--spacing) * 275);
+    --spacing-main-content-only: calc(var(--spacing) * 367);
+    --color-graph-primary: #7D4895;
 }
 * {
     margin: 0;
@@ -64,7 +75,22 @@
             color: color-mix(in oklab, var(--color-link-primary) 50%, transparent);
         }
     }
+    .commentsDashboardSummaryItem {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: calc(var(--spacing) * 2);
+        padding: 16px;
+    }
     /* Text Theme Variables */
+    .textTitleItemXlg {
+        font-family: Inter;
+        font-size: 56px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 100%;
+        letter-spacing: -0.32px;
+    }
     .textTitleItemLg {
         font-family: Inter;
         font-size: 20px;

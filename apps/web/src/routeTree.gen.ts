@@ -11,8 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ModerateRouteImport } from './routes/moderate'
 import { Route as HistoryRouteImport } from './routes/history'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ArticlesRouteImport } from './routes/articles'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -26,14 +26,14 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ModerateRoute = ModerateRouteImport.update({
+  id: '/moderate',
+  path: '/moderate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
   path: '/history',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArticlesRoute = ArticlesRouteImport.update({
@@ -50,16 +50,16 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/articles': typeof ArticlesRoute
-  '/dashboard': typeof DashboardRoute
   '/history': typeof HistoryRoute
+  '/moderate': typeof ModerateRoute
   '/settings': typeof SettingsRoute
   '/users': typeof UsersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/articles': typeof ArticlesRoute
-  '/dashboard': typeof DashboardRoute
   '/history': typeof HistoryRoute
+  '/moderate': typeof ModerateRoute
   '/settings': typeof SettingsRoute
   '/users': typeof UsersRoute
 }
@@ -67,8 +67,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/articles': typeof ArticlesRoute
-  '/dashboard': typeof DashboardRoute
   '/history': typeof HistoryRoute
+  '/moderate': typeof ModerateRoute
   '/settings': typeof SettingsRoute
   '/users': typeof UsersRoute
 }
@@ -77,18 +77,18 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/articles'
-    | '/dashboard'
     | '/history'
+    | '/moderate'
     | '/settings'
     | '/users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/articles' | '/dashboard' | '/history' | '/settings' | '/users'
+  to: '/' | '/articles' | '/history' | '/moderate' | '/settings' | '/users'
   id:
     | '__root__'
     | '/'
     | '/articles'
-    | '/dashboard'
     | '/history'
+    | '/moderate'
     | '/settings'
     | '/users'
   fileRoutesById: FileRoutesById
@@ -96,8 +96,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ArticlesRoute: typeof ArticlesRoute
-  DashboardRoute: typeof DashboardRoute
   HistoryRoute: typeof HistoryRoute
+  ModerateRoute: typeof ModerateRoute
   SettingsRoute: typeof SettingsRoute
   UsersRoute: typeof UsersRoute
 }
@@ -118,18 +118,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/moderate': {
+      id: '/moderate'
+      path: '/moderate'
+      fullPath: '/moderate'
+      preLoaderRoute: typeof ModerateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/history': {
       id: '/history'
       path: '/history'
       fullPath: '/history'
       preLoaderRoute: typeof HistoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/articles': {
@@ -152,8 +152,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ArticlesRoute: ArticlesRoute,
-  DashboardRoute: DashboardRoute,
   HistoryRoute: HistoryRoute,
+  ModerateRoute: ModerateRoute,
   SettingsRoute: SettingsRoute,
   UsersRoute: UsersRoute,
 }
