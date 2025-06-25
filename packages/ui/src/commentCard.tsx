@@ -75,13 +75,13 @@ export const Comment = ({ comment, onCommentReview }: CommentProps) => {
                     <span id={`copyLinkText-${comment.id}`}>Copy Link</span>
                 </button>
             </div>
-            {flaggedBy && status === 'FLAGGED' && (
+            {status === 'FLAGGED' && (
                 <div className="commentFlag">
                     <FlagIcon />
                     <div className="commentFlagLabel">
                         <span>Flagged by:</span>
                         <span className="commentFlagUser">
-                            {flaggedBy.name}
+                            {flaggedBy?.name ?? 'Community Member'}
                         </span>
                     </div>
                 </div>
