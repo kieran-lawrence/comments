@@ -11,7 +11,7 @@ import {
     UpdateCommentStatusProps,
 } from '@repo/shared-types'
 
-export const Route = createFileRoute('/articles')({
+export const Route = createFileRoute('/_auth/articles')({
     component: ArticlesPage,
 })
 

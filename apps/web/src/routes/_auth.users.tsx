@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { getUsers } from '../services/api'
 import { useQuery } from '@tanstack/react-query'
 
-export const Route = createFileRoute('/users')({
+export const Route = createFileRoute('/_auth/users')({
     component: UsersPage,
 })
 
