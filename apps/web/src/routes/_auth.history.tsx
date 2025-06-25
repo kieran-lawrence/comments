@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { getStatusChanges } from '../services/api'
 
-export const Route = createFileRoute('/history')({
+export const Route = createFileRoute('/_auth/history')({
     component: HistoryPage,
 })
 

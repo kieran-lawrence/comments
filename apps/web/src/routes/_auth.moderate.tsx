@@ -4,7 +4,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { getComments, updateCommentStatus } from '../services/api'
 import { UpdateCommentStatusProps } from '@repo/shared-types'
 
-export const Route = createFileRoute('/moderate')({
+export const Route = createFileRoute('/_auth/moderate')({
     component: ModeratePage,
 })
 
