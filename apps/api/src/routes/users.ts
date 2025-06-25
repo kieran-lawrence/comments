@@ -30,9 +30,7 @@ usersRouter.get('/', async (req, res) => {
 
 // POST /users
 usersRouter.post('/', async (req, res) => {
-    const { name, siteId, email } = req.body
-
-    if (!name || !siteId || !email) {
+    const { userId, name, email, roles } = req.body
     if (!userId || !name || !email) {
         res.status(400).json({
             error: 'Missing one or more of the following required fields: userId, name, email',
@@ -41,11 +39,20 @@ usersRouter.post('/', async (req, res) => {
     }
 
     try {
+        const rolesArray: string[] = Array.isArray(roles) ? roles : [roles]
+        // Get the highest role from the roles array passed in from Auth0
+        const usersRole = rolesArray.includes('ADMIN')
+            ? 'ADMIN'
+            : rolesArray.includes('MODERATOR')
+              ? 'MODERATOR'
+              : 'USER'
+
         const newUser = await prisma.user.create({
             data: {
                 id: userId,
                 name,
                 email,
+                role: usersRole,
             },
         })
         logger.info(
