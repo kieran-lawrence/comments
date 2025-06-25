@@ -1,4 +1,4 @@
-import { Comment, PageLayout } from '@repo/ui'
+import { Comment, Filter, Search, PageLayout } from '@repo/ui'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { getComments, updateCommentStatus } from '../services/api'
@@ -37,7 +37,39 @@ function ModeratePage() {
     }
     return (
         <PageLayout
-            sidebar={<>Sidebar</>}
+            sidebar={
+                <div className="flex flex-col items-left gap-6">
+                    <Search placeholder="Search by article or user name" />
+                    <Filter
+                        filterTitle="Comment Status"
+                        filterCount={{
+                            All: 3,
+                            'Pending Review': 3,
+                            Approved: undefined,
+                            Rejected: undefined,
+                        }}
+                        activeItem="Pending Review"
+                    />
+                    <Filter
+                        filterTitle="Changed By"
+                        filterCount={{
+                            All: undefined,
+                            System: undefined,
+                            Staff: undefined,
+                            Community: undefined,
+                        }}
+                        activeItem="All"
+                    />
+                    <Filter
+                        filterTitle="Sort"
+                        filterCount={{
+                            'Newest First': undefined,
+                            'Oldest First': undefined,
+                        }}
+                        activeItem="Newest First"
+                    />
+                </div>
+            }
             mainContent={
                 <div className="flex flex-col gap-4">
                     {comments.map((comment) => (
