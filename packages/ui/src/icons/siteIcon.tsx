@@ -1,6 +1,6 @@
 export const SiteIcon = ({ site }: { site: string }) => {
     switch (site) {
-        case 'thenightly':
+        case 'bulletin-news':
         default:
             return (
                 <svg
