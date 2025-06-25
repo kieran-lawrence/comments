@@ -1,6 +1,7 @@
 type IconProps = {
     iconColor: string
 }
+
 export const ShareIcon = ({ iconColor }: IconProps) => {
     return (
         <svg
