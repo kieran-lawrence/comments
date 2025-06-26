@@ -1,4 +1,9 @@
-import { ArticlesTable, LoadingOverlay, PageLayout } from '@repo/ui'
+import {
+    ArticlesTable,
+    ErrorComponent,
+    LoadingOverlay,
+    PageLayout,
+} from '@repo/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import {
     getArticles,
@@ -13,6 +18,12 @@ import {
 
 export const Route = createFileRoute('/_auth/articles')({
     component: ArticlesPage,
+    errorComponent: ({ error }) => (
+        <ErrorComponent
+            message={error.message}
+            details={error.cause as string}
+        />
+    ),
 })
 
 function ArticlesPage() {
@@ -26,12 +37,16 @@ function ArticlesPage() {
         queryFn: getArticles,
     })
 
-    // TODO: Add loading and error states
     if (isLoading) {
         return <LoadingOverlay />
     }
     if (isError || !articles) {
-        return <div>Error loading articles</div>
+        throw new Error(
+            `Encountered an issue while fetching article data.\n Please try again later or contact us if the problem persists.`,
+            {
+                cause: 'Error with query: getArticles on /articles route',
+            },
+        )
     }
 
     const handleCommentReview = async (props: UpdateCommentStatusProps) => {

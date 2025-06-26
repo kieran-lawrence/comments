@@ -1,4 +1,11 @@
-import { Comment, Filter, Search, LoadingOverlay, PageLayout } from '@repo/ui'
+import {
+    Comment,
+    Filter,
+    Search,
+    LoadingOverlay,
+    PageLayout,
+    ErrorComponent,
+} from '@repo/ui'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { getComments, updateCommentStatus } from '../services/api'
@@ -6,6 +13,12 @@ import { UpdateCommentStatusProps } from '@repo/shared-types'
 
 export const Route = createFileRoute('/_auth/moderate')({
     component: ModeratePage,
+    errorComponent: ({ error }) => (
+        <ErrorComponent
+            message={error.message}
+            details={error.cause as string}
+        />
+    ),
 })
 
 function ModeratePage() {
@@ -19,12 +32,16 @@ function ModeratePage() {
         queryFn: getComments,
     })
 
-    // TODO: Add loading and error states
     if (isLoading) {
         return <LoadingOverlay />
     }
     if (isError || !comments) {
-        return <div>Error loading comments</div>
+        throw new Error(
+            `Encountered an issue while fetching comments data.\n Please try again later or contact us if the problem persists.`,
+            {
+                cause: 'Error with query: getComments on /moderate route',
+            },
+        )
     }
     /** Function to handle comment review actions
      * @param props - The properties for updating the comment status

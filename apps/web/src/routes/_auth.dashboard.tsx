@@ -1,10 +1,21 @@
-import { CommentsDashboard, LoadingOverlay, PageLayout } from '@repo/ui'
+import {
+    CommentsDashboard,
+    ErrorComponent,
+    LoadingOverlay,
+    PageLayout,
+} from '@repo/ui'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { getStatistics } from '../services/api'
 
 export const Route = createFileRoute('/_auth/dashboard')({
     component: DashboardPage,
+    errorComponent: ({ error }) => (
+        <ErrorComponent
+            message={error.message}
+            details={error.cause as string}
+        />
+    ),
 })
 
 function DashboardPage() {
@@ -17,12 +28,16 @@ function DashboardPage() {
         queryFn: getStatistics,
     })
 
-    // TODO: Add loading and error states
     if (isLoading) {
         return <LoadingOverlay />
     }
     if (isError || !statisticData) {
-        return <div>Error loading statistics</div>
+        throw new Error(
+            `Encountered an issue while fetching dashboard data.\n Please try again later or contact us if the problem persists.`,
+            {
+                cause: 'Error with query: getStatistics on /dashboard route',
+            },
+        )
     }
 
     return (
