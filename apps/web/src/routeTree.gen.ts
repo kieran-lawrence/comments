@@ -9,153 +9,246 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as UsersRouteImport } from './routes/users'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as ModerateRouteImport } from './routes/moderate'
-import { Route as HistoryRouteImport } from './routes/history'
-import { Route as ArticlesRouteImport } from './routes/articles'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ErrorRouteImport } from './routes/error'
+import { Route as AuthRouteImport } from './routes/_auth'
+import { Route as AuthIndexRouteImport } from './routes/_auth.index'
+import { Route as AuthUsersRouteImport } from './routes/_auth.users'
+import { Route as AuthSettingsRouteImport } from './routes/_auth.settings'
+import { Route as AuthModerateRouteImport } from './routes/_auth.moderate'
+import { Route as AuthHistoryRouteImport } from './routes/_auth.history'
+import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
+import { Route as AuthArticlesRouteImport } from './routes/_auth.articles'
 
-const UsersRoute = UsersRouteImport.update({
-  id: '/users',
-  path: '/users',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+const ErrorRoute = ErrorRouteImport.update({
+  id: '/error',
+  path: '/error',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ModerateRoute = ModerateRouteImport.update({
-  id: '/moderate',
-  path: '/moderate',
+const AuthRoute = AuthRouteImport.update({
+  id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HistoryRoute = HistoryRouteImport.update({
-  id: '/history',
-  path: '/history',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ArticlesRoute = ArticlesRouteImport.update({
-  id: '/articles',
-  path: '/articles',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
+const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthUsersRoute = AuthUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthSettingsRoute = AuthSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthModerateRoute = AuthModerateRouteImport.update({
+  id: '/moderate',
+  path: '/moderate',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthHistoryRoute = AuthHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthDashboardRoute = AuthDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthArticlesRoute = AuthArticlesRouteImport.update({
+  id: '/articles',
+  path: '/articles',
+  getParentRoute: () => AuthRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/articles': typeof ArticlesRoute
-  '/history': typeof HistoryRoute
-  '/moderate': typeof ModerateRoute
-  '/settings': typeof SettingsRoute
-  '/users': typeof UsersRoute
+  '/error': typeof ErrorRoute
+  '/login': typeof LoginRoute
+  '/articles': typeof AuthArticlesRoute
+  '/dashboard': typeof AuthDashboardRoute
+  '/history': typeof AuthHistoryRoute
+  '/moderate': typeof AuthModerateRoute
+  '/settings': typeof AuthSettingsRoute
+  '/users': typeof AuthUsersRoute
+  '/': typeof AuthIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/articles': typeof ArticlesRoute
-  '/history': typeof HistoryRoute
-  '/moderate': typeof ModerateRoute
-  '/settings': typeof SettingsRoute
-  '/users': typeof UsersRoute
+  '/error': typeof ErrorRoute
+  '/login': typeof LoginRoute
+  '/articles': typeof AuthArticlesRoute
+  '/dashboard': typeof AuthDashboardRoute
+  '/history': typeof AuthHistoryRoute
+  '/moderate': typeof AuthModerateRoute
+  '/settings': typeof AuthSettingsRoute
+  '/users': typeof AuthUsersRoute
+  '/': typeof AuthIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/articles': typeof ArticlesRoute
-  '/history': typeof HistoryRoute
-  '/moderate': typeof ModerateRoute
-  '/settings': typeof SettingsRoute
-  '/users': typeof UsersRoute
+  '/_auth': typeof AuthRouteWithChildren
+  '/error': typeof ErrorRoute
+  '/login': typeof LoginRoute
+  '/_auth/articles': typeof AuthArticlesRoute
+  '/_auth/dashboard': typeof AuthDashboardRoute
+  '/_auth/history': typeof AuthHistoryRoute
+  '/_auth/moderate': typeof AuthModerateRoute
+  '/_auth/settings': typeof AuthSettingsRoute
+  '/_auth/users': typeof AuthUsersRoute
+  '/_auth/': typeof AuthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
+    | '/error'
+    | '/login'
     | '/articles'
+    | '/dashboard'
     | '/history'
     | '/moderate'
     | '/settings'
     | '/users'
+    | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/articles' | '/history' | '/moderate' | '/settings' | '/users'
+  to:
+    | '/error'
+    | '/login'
+    | '/articles'
+    | '/dashboard'
+    | '/history'
+    | '/moderate'
+    | '/settings'
+    | '/users'
+    | '/'
   id:
     | '__root__'
-    | '/'
-    | '/articles'
-    | '/history'
-    | '/moderate'
-    | '/settings'
-    | '/users'
+    | '/_auth'
+    | '/error'
+    | '/login'
+    | '/_auth/articles'
+    | '/_auth/dashboard'
+    | '/_auth/history'
+    | '/_auth/moderate'
+    | '/_auth/settings'
+    | '/_auth/users'
+    | '/_auth/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  ArticlesRoute: typeof ArticlesRoute
-  HistoryRoute: typeof HistoryRoute
-  ModerateRoute: typeof ModerateRoute
-  SettingsRoute: typeof SettingsRoute
-  UsersRoute: typeof UsersRoute
+  AuthRoute: typeof AuthRouteWithChildren
+  ErrorRoute: typeof ErrorRoute
+  LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/users': {
-      id: '/users'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof UsersRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
+    '/error': {
+      id: '/error'
+      path: '/error'
+      fullPath: '/error'
+      preLoaderRoute: typeof ErrorRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/moderate': {
-      id: '/moderate'
-      path: '/moderate'
-      fullPath: '/moderate'
-      preLoaderRoute: typeof ModerateRouteImport
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/history': {
-      id: '/history'
-      path: '/history'
-      fullPath: '/history'
-      preLoaderRoute: typeof HistoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/articles': {
-      id: '/articles'
-      path: '/articles'
-      fullPath: '/articles'
-      preLoaderRoute: typeof ArticlesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/_auth/': {
+      id: '/_auth/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/users': {
+      id: '/_auth/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AuthUsersRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/settings': {
+      id: '/_auth/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthSettingsRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/moderate': {
+      id: '/_auth/moderate'
+      path: '/moderate'
+      fullPath: '/moderate'
+      preLoaderRoute: typeof AuthModerateRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/history': {
+      id: '/_auth/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof AuthHistoryRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/dashboard': {
+      id: '/_auth/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthDashboardRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/articles': {
+      id: '/_auth/articles'
+      path: '/articles'
+      fullPath: '/articles'
+      preLoaderRoute: typeof AuthArticlesRouteImport
+      parentRoute: typeof AuthRoute
     }
   }
 }
 
+interface AuthRouteChildren {
+  AuthArticlesRoute: typeof AuthArticlesRoute
+  AuthDashboardRoute: typeof AuthDashboardRoute
+  AuthHistoryRoute: typeof AuthHistoryRoute
+  AuthModerateRoute: typeof AuthModerateRoute
+  AuthSettingsRoute: typeof AuthSettingsRoute
+  AuthUsersRoute: typeof AuthUsersRoute
+  AuthIndexRoute: typeof AuthIndexRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthArticlesRoute: AuthArticlesRoute,
+  AuthDashboardRoute: AuthDashboardRoute,
+  AuthHistoryRoute: AuthHistoryRoute,
+  AuthModerateRoute: AuthModerateRoute,
+  AuthSettingsRoute: AuthSettingsRoute,
+  AuthUsersRoute: AuthUsersRoute,
+  AuthIndexRoute: AuthIndexRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  ArticlesRoute: ArticlesRoute,
-  HistoryRoute: HistoryRoute,
-  ModerateRoute: ModerateRoute,
-  SettingsRoute: SettingsRoute,
-  UsersRoute: UsersRoute,
+  AuthRoute: AuthRouteWithChildren,
+  ErrorRoute: ErrorRoute,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
