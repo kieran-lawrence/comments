@@ -1,4 +1,4 @@
-import { PageLayout, UserTable } from '@repo/ui'
+import { LoadingOverlay, PageLayout, UserTable } from '@repo/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import { getUsers } from '../services/api'
 import { useQuery } from '@tanstack/react-query'
@@ -20,7 +20,7 @@ function UsersPage() {
 
     // TODO: Add loading and error states
     if (isLoading) {
-        return <div>Loading...</div>
+        return <LoadingOverlay />
     }
     if (isError || !users) {
         return <div>Error loading users</div>

@@ -1,10 +1,10 @@
 export const LoadingOverlay = () => {
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/10 z-50">
             <div role="status">
                 <svg
                     aria-hidden="true"
-                    className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                    className="w-12 h-12 text-gray-200 animate-spin dark:text-text-secondary fill-text-menu-hover"
                     viewBox="0 0 100 101"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"

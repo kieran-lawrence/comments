@@ -1,4 +1,4 @@
-import { CommentStatusChangesTable, PageLayout } from '@repo/ui'
+import { CommentStatusChangesTable, LoadingOverlay, PageLayout } from '@repo/ui'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { getStatusChanges } from '../services/api'
@@ -20,7 +20,7 @@ function HistoryPage() {
 
     // TODO: Add loading and error states
     if (isLoading) {
-        return <div>Loading...</div>
+        return <LoadingOverlay />
     }
     if (isError || !commentStatusChanges) {
         return <div>Error loading comment status history</div>
