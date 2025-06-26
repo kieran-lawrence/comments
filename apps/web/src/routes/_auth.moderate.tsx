@@ -1,4 +1,4 @@
-import { Comment, PageLayout } from '@repo/ui'
+import { Comment, LoadingOverlay, PageLayout } from '@repo/ui'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { getComments, updateCommentStatus } from '../services/api'
@@ -21,7 +21,7 @@ function ModeratePage() {
 
     // TODO: Add loading and error states
     if (isLoading) {
-        return <div>Loading...</div>
+        return <LoadingOverlay />
     }
     if (isError || !comments) {
         return <div>Error loading comments</div>

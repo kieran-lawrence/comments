@@ -1,4 +1,4 @@
-import { ArticlesTable, PageLayout } from '@repo/ui'
+import { ArticlesTable, LoadingOverlay, PageLayout } from '@repo/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import {
     getArticles,
@@ -28,7 +28,7 @@ function ArticlesPage() {
 
     // TODO: Add loading and error states
     if (isLoading) {
-        return <div>Loading...</div>
+        return <LoadingOverlay />
     }
     if (isError || !articles) {
         return <div>Error loading articles</div>
