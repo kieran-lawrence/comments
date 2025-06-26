@@ -1,33 +1,22 @@
-import { CommentsDashboard, PageLayout } from '@repo/ui'
-import { useQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
-import { getStatistics } from '../services/api'
+import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_auth/')({
-    component: DashboardPage,
+    component: RouteComponent,
 })
 
-function DashboardPage() {
-    const {
-        data: statisticData,
-        isLoading,
-        isError,
-    } = useQuery({
-        queryKey: ['getStatisticsKey'],
-        queryFn: getStatistics,
-    })
-
-    // TODO: Add loading and error states
-    if (isLoading) {
-        return <div>Loading...</div>
-    }
-    if (isError || !statisticData) {
-        return <div>Error loading statistics</div>
-    }
-
+function RouteComponent() {
     return (
-        <PageLayout
-            mainContent={<CommentsDashboard statistics={statisticData} />}
-        />
+        <div className="flex flex-col justify-center items-center grow w-full gap-4">
+            <h2 className="textTitleItemLg">
+                Welcome to the Comments Dashboard
+            </h2>
+            <p>
+                Please{' '}
+                <Link className="commentLink" to="/login">
+                    Login
+                </Link>{' '}
+                to continue
+            </p>
+        </div>
     )
 }

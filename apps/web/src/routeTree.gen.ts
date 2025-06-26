@@ -16,6 +16,7 @@ import { Route as AuthUsersRouteImport } from './routes/_auth.users'
 import { Route as AuthSettingsRouteImport } from './routes/_auth.settings'
 import { Route as AuthModerateRouteImport } from './routes/_auth.moderate'
 import { Route as AuthHistoryRouteImport } from './routes/_auth.history'
+import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
 import { Route as AuthArticlesRouteImport } from './routes/_auth.articles'
 
 const LoginRoute = LoginRouteImport.update({
@@ -52,6 +53,11 @@ const AuthHistoryRoute = AuthHistoryRouteImport.update({
   path: '/history',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthDashboardRoute = AuthDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthArticlesRoute = AuthArticlesRouteImport.update({
   id: '/articles',
   path: '/articles',
@@ -61,6 +67,7 @@ const AuthArticlesRoute = AuthArticlesRouteImport.update({
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/articles': typeof AuthArticlesRoute
+  '/dashboard': typeof AuthDashboardRoute
   '/history': typeof AuthHistoryRoute
   '/moderate': typeof AuthModerateRoute
   '/settings': typeof AuthSettingsRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/articles': typeof AuthArticlesRoute
+  '/dashboard': typeof AuthDashboardRoute
   '/history': typeof AuthHistoryRoute
   '/moderate': typeof AuthModerateRoute
   '/settings': typeof AuthSettingsRoute
@@ -81,6 +89,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
   '/_auth/articles': typeof AuthArticlesRoute
+  '/_auth/dashboard': typeof AuthDashboardRoute
   '/_auth/history': typeof AuthHistoryRoute
   '/_auth/moderate': typeof AuthModerateRoute
   '/_auth/settings': typeof AuthSettingsRoute
@@ -92,6 +101,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/login'
     | '/articles'
+    | '/dashboard'
     | '/history'
     | '/moderate'
     | '/settings'
@@ -101,6 +111,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/articles'
+    | '/dashboard'
     | '/history'
     | '/moderate'
     | '/settings'
@@ -111,6 +122,7 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/login'
     | '/_auth/articles'
+    | '/_auth/dashboard'
     | '/_auth/history'
     | '/_auth/moderate'
     | '/_auth/settings'
@@ -174,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthHistoryRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/dashboard': {
+      id: '/_auth/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthDashboardRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/articles': {
       id: '/_auth/articles'
       path: '/articles'
@@ -186,6 +205,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteChildren {
   AuthArticlesRoute: typeof AuthArticlesRoute
+  AuthDashboardRoute: typeof AuthDashboardRoute
   AuthHistoryRoute: typeof AuthHistoryRoute
   AuthModerateRoute: typeof AuthModerateRoute
   AuthSettingsRoute: typeof AuthSettingsRoute
@@ -195,6 +215,7 @@ interface AuthRouteChildren {
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthArticlesRoute: AuthArticlesRoute,
+  AuthDashboardRoute: AuthDashboardRoute,
   AuthHistoryRoute: AuthHistoryRoute,
   AuthModerateRoute: AuthModerateRoute,
   AuthSettingsRoute: AuthSettingsRoute,
