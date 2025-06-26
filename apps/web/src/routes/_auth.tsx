@@ -20,14 +20,11 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { useEffect, useState } from 'react'
 
 export const Route = createFileRoute('/_auth')({
-    beforeLoad: ({ context, location }) => {
+    beforeLoad: ({ context }) => {
         if (context.auth.isLoading) return <LoadingOverlay />
         if (!context.auth.isAuthenticated) {
             throw redirect({
                 to: '/login',
-                search: {
-                    redirect: location.href,
-                },
             })
         }
     },
@@ -61,7 +58,7 @@ function RootLayout() {
 
     // Define the navigation links
     const navLinks: NavigationLink[] = [
-        { to: '/', label: 'Dashboard', icon: <DashboardIcon /> },
+        { to: '/dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
         { to: '/moderate', label: 'Moderate', icon: <ModerateIcon /> },
         { to: '/articles', label: 'Articles', icon: <ArticleIcon /> },
         { to: '/users', label: 'Users', icon: <UserIcon /> },
@@ -76,7 +73,7 @@ function RootLayout() {
                 className="flex justify-between items-center bg-bg-menu text-primary px-5"
             >
                 <Link
-                    to="/"
+                    to="/dashboard"
                     className="text-2xl font-medium transition-all duration-250 hover:text-text-menu-hover"
                 >
                     Comments
