@@ -40,12 +40,13 @@ export class CommentsInfrastructure extends pulumi.ComponentResource {
             vpcId: vpc.id,
             cidrBlock: '10.0.1.0/24',
             availabilityZone: 'ap-southeast-2a',
-            // mapPublicIpOnLaunch: true, // Allows instances in this subnet to have public IPs
+            mapPublicIpOnLaunch: false, // Allows instances in this subnet to have public IPs
         })
         const subnetB = new aws.ec2.Subnet(`${name}-subnet-b`, {
             vpcId: vpc.id,
             cidrBlock: '10.0.2.0/24',
             availabilityZone: 'ap-southeast-2b',
+            mapPublicIpOnLaunch: false, // Allows instances in this subnet to have public IPs
         })
 
         // Create a subnet group for the RDS cluster
@@ -194,6 +195,7 @@ systemctl enable --now ecs
 `,
             ),
             tags: { Name: `${name}-ecs-instance` },
+            associatePublicIpAddress: false,
         })
 
         // ECS Task Execution Role
