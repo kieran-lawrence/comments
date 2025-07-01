@@ -130,3 +130,25 @@ export type StatisticsResponse = EngagementSummaryResponse & {
     commentsLast24Hours: RecentCommentsResponse[]
     topCommentsToday: TopCommentResponse[]
 }
+
+// ------- Filter/Sort Key Types -------
+export type CommentFilterOptions =
+    | 'All'
+    | 'Pending Review'
+    | 'Approved'
+    | 'Rejected'
+export type SortOptions = 'Newest First' | 'Oldest First'
+export type RoleFilterOptions = Role | 'ALL'
+export type CommentStatusOptions = CommentStatus | 'ALL'
+export type CommentStatusChangeByOptions = CommentStatusChangeBy | 'ALL'
+export type AccountStatusOptions = 'Active' | 'Suspended' | 'Banned' | 'Deleted'
+
+// This union type combines all filter options into a single type for use in the filter component so it accepts any of the defined filter options.
+export type FilterOption =
+    | CommentFilterOptions
+    | SortOptions
+    | ArticleCommentingStatus
+    | RoleFilterOptions
+    | AccountStatusOptions
+    | CommentStatusOptions
+    | CommentStatusChangeByOptions
