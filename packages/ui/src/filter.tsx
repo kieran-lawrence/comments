@@ -1,5 +1,4 @@
 import { FilterOption } from '@repo/shared-types'
-import './styles/filter.css'
 import { Dispatch, SetStateAction } from 'react'
 
 type FilterProps<T extends string> = {
@@ -16,12 +15,12 @@ export const Filter = <T extends FilterOption>({
     onClick,
 }: FilterProps<T>) => {
     return (
-        <div className="filterContainer">
-            <h3 className="filterTitle">{filterTitle}</h3>
-            <div className="filterOptions">
+        <div className="flex flex-col gap-2">
+            <h3 className="textTitleItemLg text-text-primary">{filterTitle}</h3>
+            <div className="flex flex-wrap gap-2">
                 {Object.entries(filterCount).map(([filter, count]) => (
                     <button
-                        className={`cursor-pointer filterButton ${activeItem === filter ? 'active' : ''}`}
+                        className={`hover:opacity-50 focus:opacity-50 cursor-pointer textTitleItemSm filterButton ${activeItem === filter ? 'active' : ''}`}
                         onClick={() => onClick(filter as T)}
                         key={filter}
                     >
