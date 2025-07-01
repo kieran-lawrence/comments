@@ -1,8 +1,10 @@
 import {
     ArticlesTable,
     ErrorComponent,
+    Filter,
     LoadingOverlay,
     PageLayout,
+    Search,
 } from '@repo/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import {
@@ -12,9 +14,17 @@ import {
 } from '../services/api'
 import { useQuery } from '@tanstack/react-query'
 import {
+    ArticleCommentingStatus,
+    SortOptions,
     UpdateArticleStatusProps,
     UpdateCommentStatusProps,
 } from '@repo/shared-types'
+import { useMemo, useState } from 'react'
+import {
+    filterArticlesByStatus,
+    searchArticles,
+    sortArticles,
+} from '../utils/helpers'
 
 export const Route = createFileRoute('/_auth/articles')({
     component: ArticlesPage,
@@ -36,11 +46,25 @@ function ArticlesPage() {
         queryKey: ['getArticlesKey'],
         queryFn: getArticles,
     })
+    const [statusFilter, setStatusFilter] =
+        useState<ArticleCommentingStatus>('OPEN')
+    const [sort, setSort] = useState<SortOptions>('Newest First')
+    const [searchTerm, setSearchTerm] = useState('')
+
+    const searchFilteredArticles = useMemo(() => {
+        if (!articles) return null
+        const filtered = filterArticlesByStatus(
+            sortArticles(articles, sort),
+            statusFilter,
+        )
+        if (!searchTerm) return filtered
+        return searchArticles(filtered, searchTerm)
+    }, [articles, searchTerm, statusFilter, sort])
 
     if (isLoading) {
         return <LoadingOverlay />
     }
-    if (isError || !articles) {
+    if (isError || !searchFilteredArticles) {
         throw new Error(
             `Encountered an issue while fetching article data.\n Please try again later or contact us if the problem persists.`,
             {
@@ -61,11 +85,36 @@ function ArticlesPage() {
 
     return (
         <PageLayout
-            sidebar={<>Sidebar</>}
+            sidebar={
+                <div className="flex flex-col items-left gap-6">
+                    <Search
+                        placeholder="Search by article title or author"
+                        onSearch={setSearchTerm}
+                    />
+                    <Filter<ArticleCommentingStatus>
+                        filterTitle="Commenting Status"
+                        filterCount={{
+                            OPEN: undefined,
+                            CLOSED: undefined,
+                        }}
+                        activeItem={statusFilter}
+                        onClick={setStatusFilter}
+                    />
+                    <Filter<SortOptions>
+                        filterTitle="Sort"
+                        filterCount={{
+                            'Newest First': undefined,
+                            'Oldest First': undefined,
+                        }}
+                        activeItem={sort}
+                        onClick={setSort}
+                    />
+                </div>
+            }
             mainContent={
                 <div className="flex flex-col gap-4">
                     <ArticlesTable
-                        articles={articles}
+                        articles={searchFilteredArticles}
                         onCommentReview={handleCommentReview}
                         onStatusChange={handleStatusChange}
                     />
