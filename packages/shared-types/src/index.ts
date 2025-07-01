@@ -14,22 +14,12 @@ export type CommentStatusChangeBy =
     | 'COMMUNITY' // Comment flagged by community, triggering a review
     | 'SYSTEM' // System-generated change (e.g. auto-approval or rejection)
 
-export type Schema_Site = {
-    id: string
-    name: string
-    createdAt: string
-    users: Schema_User[]
-    articles: Schema_Article[]
-}
-
 export type Schema_User = {
-    id: number
+    id: string
     name: string
     role: Role
     email: string
     createdAt: string
-    site: Schema_Site
-    siteId: string
     articles: Schema_Article[]
     comments: Schema_Comment[]
     commentStatusChanges?: Schema_CommentStatusChange[]
@@ -69,8 +59,6 @@ export type Schema_Article = {
     author: Schema_User
     authorId: number
     comments: Schema_Comment[]
-    site: Schema_Site
-    siteId: string
 }
 
 export type Schema_Comment = {
@@ -107,7 +95,7 @@ export type Schema_UserIgnoredUsers = {
 export type UpdateCommentStatusProps = {
     commentId: number
     status: CommentStatus
-    userId: number
+    userId: string
     changedBy: CommentStatusChangeBy
 }
 export type UpdateArticleStatusProps = {
