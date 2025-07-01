@@ -11,8 +11,9 @@ import { Link } from '@tanstack/react-router'
 type CommentProps = {
     comment: Schema_Comment
     onCommentReview: (props: UpdateCommentStatusProps) => Promise<void>
+    userId: string
 }
-export const Comment = ({ comment, onCommentReview }: CommentProps) => {
+export const Comment = ({ comment, onCommentReview, userId }: CommentProps) => {
     const {
         author,
         createdAt,
@@ -89,13 +90,12 @@ export const Comment = ({ comment, onCommentReview }: CommentProps) => {
             <h2 className="commentTitle">{article.articleTitle}</h2>
             <p className="commentContent">{content}</p>
             <div className="commentActions">
-                {/* TODO: Changed by is hard coded to a 'MODERATOR' user - we dont have a logged in state just yet */}
                 <Button
                     onClick={() =>
                         onCommentReview({
                             commentId: comment.id,
                             status: 'APPROVED',
-                            userId: 2,
+                            userId,
                             changedBy: 'STAFF',
                         })
                     }
@@ -107,7 +107,7 @@ export const Comment = ({ comment, onCommentReview }: CommentProps) => {
                         onCommentReview({
                             commentId: comment.id,
                             status: 'REJECTED',
-                            userId: 2,
+                            userId,
                             changedBy: 'STAFF',
                         })
                     }
@@ -125,15 +125,15 @@ export const Comment = ({ comment, onCommentReview }: CommentProps) => {
             </div>
             <div className="linksContainer">
                 <Link
-                    to="commentLink"
-                    href={`/articles#articleCard-${article.articleId}`}
+                    className="commentLink"
+                    to={`/articles#articleCard-${article.articleId}`}
                 >
                     View Conversation
                 </Link>
                 <span className="commentLink">
                     {/* TODO: This anchor won't work until we integrate it onto the frontend site where comments are displayed */}
                     <Link
-                        to={`${comment.article.articleUrl}#comments?focusComment=${comment.id}`}
+                        to={`${comment.article.articleUrl}#comments?focusCommentId=${comment.id}`}
                         target="_blank"
                     >
                         View In Article
