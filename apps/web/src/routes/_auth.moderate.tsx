@@ -9,7 +9,18 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { getComments, updateCommentStatus } from '../services/api'
-import { UpdateCommentStatusProps } from '@repo/shared-types'
+import {
+    CommentFilterOptions,
+    SortOptions,
+    UpdateCommentStatusProps,
+} from '@repo/shared-types'
+import { useState, useMemo } from 'react'
+import { useAuth0 } from '@auth0/auth0-react'
+import {
+    getFilteredCommentsWithCounts,
+    searchComments,
+    sortComments,
+} from '../utils/helpers'
 
 export const Route = createFileRoute('/_auth/moderate')({
     component: ModeratePage,
@@ -31,11 +42,31 @@ function ModeratePage() {
         queryKey: ['getCommentsKey'],
         queryFn: getComments,
     })
+    const { user, isLoading: authLoading } = useAuth0()
 
-    if (isLoading) {
+    const [commentFilter, setCommentFilter] =
+        useState<CommentFilterOptions>('Pending Review')
+    const [sort, setSort] = useState<SortOptions>('Newest First')
+    const [searchTerm, setSearchTerm] = useState('')
+
+    const filteredComments = useMemo(() => {
+        if (!comments) return null
+        return getFilteredCommentsWithCounts(sortComments(comments, sort))
+    }, [comments, sort])
+
+    const searchFilteredComments = useMemo(() => {
+        if (!filteredComments) return null
+        if (!searchTerm) return filteredComments[commentFilter].comments
+        return searchComments(
+            filteredComments[commentFilter].comments,
+            searchTerm,
+        )
+    }, [filteredComments, searchTerm, commentFilter])
+
+    if (isLoading || authLoading) {
         return <LoadingOverlay />
     }
-    if (isError || !comments) {
+    if (isError || !filteredComments || !searchFilteredComments || !user) {
         throw new Error(
             `Encountered an issue while fetching comments data.\n Please try again later or contact us if the problem persists.`,
             {
@@ -56,44 +87,41 @@ function ModeratePage() {
         <PageLayout
             sidebar={
                 <div className="flex flex-col items-left gap-6">
-                    <Search placeholder="Search by article or user name" />
-                    <Filter
+                    <Search
+                        placeholder="Search by article or user name"
+                        onSearch={setSearchTerm}
+                    />
+                    <Filter<CommentFilterOptions>
                         filterTitle="Comment Status"
                         filterCount={{
-                            All: 3,
-                            'Pending Review': 3,
-                            Approved: undefined,
-                            Rejected: undefined,
+                            All: filteredComments.All.count,
+                            'Pending Review':
+                                filteredComments['Pending Review'].count,
+                            Approved: filteredComments.Approved.count,
+                            Rejected: filteredComments.Rejected.count,
                         }}
-                        activeItem="Pending Review"
+                        activeItem={commentFilter}
+                        onClick={setCommentFilter}
                     />
-                    <Filter
-                        filterTitle="Changed By"
-                        filterCount={{
-                            All: undefined,
-                            System: undefined,
-                            Staff: undefined,
-                            Community: undefined,
-                        }}
-                        activeItem="All"
-                    />
-                    <Filter
+                    <Filter<SortOptions>
                         filterTitle="Sort"
                         filterCount={{
                             'Newest First': undefined,
                             'Oldest First': undefined,
                         }}
-                        activeItem="Newest First"
+                        activeItem={sort}
+                        onClick={setSort}
                     />
                 </div>
             }
             mainContent={
                 <div className="flex flex-col gap-4">
-                    {comments.map((comment) => (
+                    {searchFilteredComments.map((comment) => (
                         <Comment
                             key={comment.id}
                             comment={comment}
                             onCommentReview={handleCommentReview}
+                            userId={user.sub!}
                         />
                     ))}
                 </div>

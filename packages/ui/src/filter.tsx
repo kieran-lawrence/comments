@@ -1,27 +1,32 @@
-import './styles/filter.css'
+import { FilterOption } from '@repo/shared-types'
+import { Dispatch, SetStateAction } from 'react'
 
-type FilterProps = {
+type FilterProps<T extends string> = {
     filterTitle: string
-    filterCount: Record<string, number | undefined>
-    activeItem: string
+    filterCount: Record<T, number | undefined>
+    activeItem: T
+    onClick: Dispatch<SetStateAction<T>>
 }
 
-export const Filter = ({
+export const Filter = <T extends FilterOption>({
     filterTitle,
     filterCount,
     activeItem,
-}: FilterProps) => {
+    onClick,
+}: FilterProps<T>) => {
     return (
-        <div className="filterContainer">
-            <h3 className="filterTitle">{filterTitle}</h3>
-            <div className="filterOptions">
+        <div className="flex flex-col gap-2">
+            <h3 className="textTitleItemLg text-text-primary">{filterTitle}</h3>
+            <div className="flex flex-wrap gap-2">
                 {Object.entries(filterCount).map(([filter, count]) => (
                     <button
-                        className={`filterButton ${activeItem === filter ? 'active' : ''}`}
+                        className={`hover:opacity-50 focus:opacity-50 cursor-pointer textTitleItemSm filterButton ${activeItem === filter ? 'active' : ''}`}
+                        onClick={() => onClick(filter as T)}
+                        key={filter}
                     >
-                        {count === undefined
-                            ? `${filter}`
-                            : `${filter} (${count})`}
+                        {count
+                            ? `${filter.toLowerCase()} (${count})`
+                            : `${filter.toLowerCase()}`}
                     </button>
                 ))}
             </div>

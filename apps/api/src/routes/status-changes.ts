@@ -9,7 +9,12 @@ statusChangesRouter.get('/', async (req, res) => {
     try {
         const allStatusChanges = await prisma.commentStatusChanges.findMany({
             include: {
-                comment: true,
+                comment: {
+                    include: {
+                        article: true,
+                        author: true,
+                    },
+                },
                 changedByUser: true,
             },
             orderBy: {
