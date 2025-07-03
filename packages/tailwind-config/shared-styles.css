@@ -19,6 +19,7 @@
     --color-text-error: #420000;
     --color-link-primary: #4B006E;
     --color-border-primary: #525252;
+    --color-border-secondary: #C6C6C6;
     --spacing-sidebar: calc(var(--spacing) * 88);
     --spacing-main-content: calc(var(--spacing) * 275);
     --spacing-main-content-only: calc(var(--spacing) * 367);
@@ -82,6 +83,19 @@
         gap: calc(var(--spacing) * 2);
         padding: 16px;
     }
+    .filterButton {
+        color: var(--color-border-primary);
+        border: 1px solid var(--color-border-secondary);
+        border-radius: 40px;
+        padding: 4px 12px;
+        text-transform: capitalize;
+        transition: all 0.25s;
+        &.active {
+            color: var(--color-primary);
+            background: var(--color-bg-menu);
+        }
+    }
+
     /* Text Theme Variables */
     .textTitleItemXlg {
         font-family: Inter;
