@@ -67,9 +67,15 @@
 }
 
 .commentTitle {
+    color:  var(--color-text-primary);
     font-size: 16px;
     font-weight: 600;
     text-transform: capitalize;
+    text-decoration: underline;
+    transition: color 0.25s ease;
+    &:hover {
+        color: color-mix(in oklab, var(--color-text-primary) 50%, transparent);
+    }
 }
 
 .commentContent {
