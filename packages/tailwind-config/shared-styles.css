@@ -26,7 +26,6 @@
     --color-graph-primary: #7D4895;
 }
 * {
-    margin: 0;
     box-sizing: border-box;
 }
 
@@ -71,6 +70,7 @@
         text-decoration: underline;
         text-underline-position: from-font;
         transition: 0.25s ease;
+        cursor: pointer;
         &:hover {
             /* Applies 50% transparency over the current color */
             color: color-mix(in oklab, var(--color-link-primary) 50%, transparent);

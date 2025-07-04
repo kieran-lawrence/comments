@@ -7,6 +7,10 @@ import { formatDistance } from 'date-fns'
 import { LinkIcon } from './icons/linkIcon'
 import { ExternalLinkIcon } from './icons/externalLinkIcon'
 import { Link } from '@tanstack/react-router'
+import { useState } from 'react'
+import { Modal } from './modal'
+import { CrossIcon } from './icons/crossIcon'
+import { CommentCardSmall } from './commentCardSmall'
 
 type CommentProps = {
     comment: Schema_Comment
@@ -24,6 +28,7 @@ export const Comment = ({ comment, onCommentReview, userId }: CommentProps) => {
         article,
         content,
     } = comment
+    const [showModal, setShowModal] = useState(false)
 
     // Get the base URL of the current page (i.e. `http://localhost:5173`)
     const BASE_URL = new URL(window.location.href).origin
@@ -44,6 +49,12 @@ export const Comment = ({ comment, onCommentReview, userId }: CommentProps) => {
                 linkText.textContent = 'COPY LINK'
             }, 1500)
         }
+    }
+
+    const handleToggleModal = () => {
+        setShowModal((prev) => !prev)
+        // Toggle the bodys overflow style to prevent scrolling when the modal is open
+        document.body.style.overflow = showModal ? 'visible' : 'hidden'
     }
 
     return (
@@ -135,12 +146,9 @@ export const Comment = ({ comment, onCommentReview, userId }: CommentProps) => {
                 )}
             </div>
             <div className="linksContainer">
-                <Link
-                    className="commentLink"
-                    to={`/articles#articleCard-${article.articleId}`}
-                >
-                    View Conversation
-                </Link>
+                <button className="commentLink" onClick={handleToggleModal}>
+                    View Thread
+                </button>
                 <span className="commentLink">
                     {/* TODO: This anchor won't work until we integrate it onto the frontend site where comments are displayed */}
                     <a
@@ -152,6 +160,63 @@ export const Comment = ({ comment, onCommentReview, userId }: CommentProps) => {
                     <ExternalLinkIcon size={18} />
                 </span>
             </div>
+            {showModal && (
+                <Modal onClose={handleToggleModal}>
+                    <div className="max-w-1/2 h-auto bg-bg-card rounded-md text-text-primary px-4 py-3 drop-shadow-lg">
+                        <div className="flex items-center justify-between gap-4">
+                            <h2 className="textTitleItemLg font-semibold">
+                                {article.articleTitle}
+                            </h2>
+                            <button
+                                className="flex items-center justify-center aspect-square p-1 h-6 cursor-pointer hover:text-text-primary/50 transition-colors duration-200"
+                                onClick={handleToggleModal}
+                            >
+                                <CrossIcon />
+                            </button>
+                        </div>
+                        <div className="flex flex-col gap-2 pt-2">
+                            <h3 className="textTitleItemMd text-text-secondary font-medium">
+                                Comment Thread
+                            </h3>
+                            <div className="flex flex-col gap-2 border-l-2 border-border-secondary pl-2">
+                                {getCommentThread(comment).map((reply) => (
+                                    <CommentCardSmall
+                                        key={reply.id}
+                                        comment={reply}
+                                        onCommentReview={onCommentReview}
+                                        userId={userId}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </Modal>
+            )}
         </article>
     )
+}
+
+/** Returns a thread of comments with the first comment at the beginning of the array */
+const getCommentThread = (comment: Schema_Comment): Schema_Comment[] => {
+    const thread: Schema_Comment[] = []
+
+    // If the comment has a parent, we add it to the thread
+    if (comment.parent) {
+        thread.push(comment.parent)
+
+        // If the parent has replies, we add them to the thread
+        if (comment.parent.replies.length > 0) {
+            comment.parent.replies.forEach((reply) => thread.push(reply))
+        }
+    } else {
+        // If it's a top-level comment, we add it directly to the thread
+        thread.push(comment)
+
+        // If there are replies, we add them to the thread
+        if (comment.replies.length > 0) {
+            comment.replies.forEach((reply) => thread.push(reply))
+        }
+    }
+
+    return thread
 }
