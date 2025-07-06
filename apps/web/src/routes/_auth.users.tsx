@@ -83,32 +83,24 @@ function UsersPage() {
                     />
                     <Filter<RoleFilterOptions>
                         filterTitle="Role"
-                        filterCount={{
-                            ALL: undefined,
-                            USER: undefined,
-                            MODERATOR: undefined,
-                            ADMIN: undefined,
-                        }}
+                        filterOptions={['ALL', 'USER', 'MODERATOR', 'ADMIN']}
                         activeItem={roleFilter}
                         onClick={setRoleFilter}
                     />
                     <Filter<AccountStatusOptions>
                         filterTitle="Account Status"
-                        filterCount={{
-                            Active: undefined,
-                            Suspended: undefined,
-                            Banned: undefined,
-                            Deleted: undefined,
-                        }}
+                        filterOptions={[
+                            'Active',
+                            'Suspended',
+                            'Banned',
+                            'Deleted',
+                        ]}
                         activeItem={statusFilter}
                         onClick={setStatusFilter}
                     />
                     <Filter<SortOptions>
                         filterTitle="Sort"
-                        filterCount={{
-                            'Newest First': undefined,
-                            'Oldest First': undefined,
-                        }}
+                        filterOptions={['Newest First', 'Oldest First']}
                         activeItem={sort}
                         onClick={setSort}
                     />
