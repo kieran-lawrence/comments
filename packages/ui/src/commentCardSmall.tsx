@@ -1,25 +1,17 @@
-import { Schema_Comment, UpdateCommentStatusProps } from '@repo/shared-types'
 import { formatDistance } from 'date-fns'
 import { Button } from './button'
 import { CheckIcon } from './icons/checkIcon'
 import { CrossIcon } from './icons/crossIcon'
 import { ReplyingToIcon } from './icons/replyingToIcon'
+import { CommentProps } from './commentCard'
 
-type SmallCommentCardProps = {
-    comment: Schema_Comment
-    onCommentReview: (props: UpdateCommentStatusProps) => Promise<void>
-    userId: string
-}
 export const CommentCardSmall = ({
     comment,
     onCommentReview,
     userId,
-}: SmallCommentCardProps) => {
-    const isReply = Boolean(comment.parentId)
+}: Omit<CommentProps, 'apiKey' | 'apiUrl'>) => {
     return (
-        <div
-            className={`flex flex-col gap-2 ${isReply && 'border-l-2 border-border-secondary pl-2'}`}
-        >
+        <div className={`flex flex-col gap-2`}>
             <article className="px-3 py-2 bg-bg-card-alt rounded-md text-text-primary">
                 <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
