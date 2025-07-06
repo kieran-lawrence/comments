@@ -25,6 +25,7 @@ import {
     searchArticles,
     sortArticles,
 } from '../utils/helpers'
+import { useAuth0 } from '@auth0/auth0-react'
 
 export const Route = createFileRoute('/_auth/articles')({
     component: ArticlesPage,
@@ -46,6 +47,7 @@ function ArticlesPage() {
         queryKey: ['getArticlesKey'],
         queryFn: getArticles,
     })
+    const { user, isLoading: authLoading } = useAuth0()
     const [statusFilter, setStatusFilter] =
         useState<ArticleCommentingStatus>('OPEN')
     const [sort, setSort] = useState<SortOptions>('Newest First')
@@ -61,7 +63,7 @@ function ArticlesPage() {
         return searchArticles(filtered, searchTerm)
     }, [articles, searchTerm, statusFilter, sort])
 
-    if (isLoading) {
+    if (isLoading || authLoading) {
         return <LoadingOverlay />
     }
     if (isError || !searchFilteredArticles) {
@@ -69,6 +71,15 @@ function ArticlesPage() {
             `Encountered an issue while fetching article data.\n Please try again later or contact us if the problem persists.`,
             {
                 cause: 'Error with query: getArticles on /articles route',
+            },
+        )
+    }
+
+    if (!user || !user.sub) {
+        throw new Error(
+            `Encountered an issue while fetching user information.\n Please try again later or contact us if the problem persists.`,
+            {
+                cause: 'No user returned from Auth0 on /articles route',
             },
         )
     }
@@ -93,19 +104,13 @@ function ArticlesPage() {
                     />
                     <Filter<ArticleCommentingStatus>
                         filterTitle="Commenting Status"
-                        filterCount={{
-                            OPEN: undefined,
-                            CLOSED: undefined,
-                        }}
+                        filterOptions={['OPEN', 'CLOSED']}
                         activeItem={statusFilter}
                         onClick={setStatusFilter}
                     />
                     <Filter<SortOptions>
                         filterTitle="Sort"
-                        filterCount={{
-                            'Newest First': undefined,
-                            'Oldest First': undefined,
-                        }}
+                        filterOptions={['Newest First', 'Oldest First']}
                         activeItem={sort}
                         onClick={setSort}
                     />
@@ -117,6 +122,7 @@ function ArticlesPage() {
                         articles={searchFilteredArticles}
                         onCommentReview={handleCommentReview}
                         onStatusChange={handleStatusChange}
+                        userId={user.sub!}
                     />
                 </div>
             }
