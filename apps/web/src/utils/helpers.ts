@@ -1,6 +1,5 @@
 import {
     ArticleCommentingStatus,
-    CommentFilterOptions,
     SortOptions,
     Schema_Article,
     Schema_Comment,
@@ -10,31 +9,6 @@ import {
     Schema_CommentStatusChange,
     CommentStatusOptions,
 } from '@repo/shared-types'
-
-type FilteredCommentWithCount = {
-    comments: Schema_Comment[]
-    count: number
-}
-type CommentFilterResult = Record<
-    CommentFilterOptions,
-    FilteredCommentWithCount
->
-export const getFilteredCommentsWithCounts = (
-    comments: Schema_Comment[],
-): CommentFilterResult => {
-    const pending = comments.filter(
-        (comment) =>
-            comment.status === 'PENDING' || comment.status === 'FLAGGED',
-    )
-    const approved = comments.filter((comment) => comment.status === 'APPROVED')
-    const rejected = comments.filter((comment) => comment.status === 'REJECTED')
-    return {
-        All: { comments, count: comments.length },
-        'Pending Review': { comments: pending, count: pending.length },
-        Approved: { comments: approved, count: approved.length },
-        Rejected: { comments: rejected, count: rejected.length },
-    }
-}
 
 const sortByDate = <T extends { createdAt: string }>(
     items: T[],

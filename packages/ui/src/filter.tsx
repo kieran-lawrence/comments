@@ -3,14 +3,14 @@ import { Dispatch, SetStateAction } from 'react'
 
 type FilterProps<T extends string> = {
     filterTitle: string
-    filterCount: Record<T, number | undefined>
+    filterOptions: T[]
     activeItem: T
     onClick: Dispatch<SetStateAction<T>>
 }
 
 export const Filter = <T extends FilterOption>({
     filterTitle,
-    filterCount,
+    filterOptions,
     activeItem,
     onClick,
 }: FilterProps<T>) => {
@@ -18,15 +18,13 @@ export const Filter = <T extends FilterOption>({
         <div className="flex flex-col gap-2">
             <h3 className="textTitleItemLg text-text-primary">{filterTitle}</h3>
             <div className="flex flex-wrap gap-2">
-                {Object.entries(filterCount).map(([filter, count]) => (
+                {filterOptions.map((filter) => (
                     <button
                         className={`hover:opacity-50 focus:opacity-50 cursor-pointer textTitleItemSm filterButton ${activeItem === filter ? 'active' : ''}`}
                         onClick={() => onClick(filter as T)}
                         key={filter}
                     >
-                        {count
-                            ? `${filter.toLowerCase()} (${count})`
-                            : `${filter.toLowerCase()}`}
+                        {`${filter.toLowerCase()}`}
                     </button>
                 ))}
             </div>

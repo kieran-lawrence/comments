@@ -6,6 +6,8 @@ import {
     Schema_User,
     UpdateArticleProps,
     UpdateCommentStatusProps,
+    CommentFilterOptions,
+    CommentStatus,
 } from '@repo/shared-types'
 
 // Calls the API to retrieve all articles
@@ -28,9 +30,27 @@ export const getArticles = async (): Promise<Schema_Article[]> => {
     return res
 }
 
-// Calls the API to retrieve all comments
-export const getComments = async (): Promise<Schema_Comment[]> => {
-    const url = `${import.meta.env.VITE_API_URL}/comments`
+// Calls the API to retrieve all comments, with optional statuses
+export const getComments = async (
+    status: CommentFilterOptions,
+): Promise<Schema_Comment[]> => {
+    let url = `${import.meta.env.VITE_API_URL}/comments`
+
+    // Map active status to actual comment statuses or undefined if status is ALL (fetch all comments regardless of status)
+    const selectedStatuses: CommentStatus[] | undefined =
+        status === 'ALL'
+            ? undefined
+            : status === 'PENDING REVIEW'
+              ? ['PENDING', 'FLAGGED']
+              : [status]
+
+    // Build the query parameters based on selected statuses
+    if (selectedStatuses && selectedStatuses.length > 0) {
+        const params = selectedStatuses
+            .map((s) => `status=${encodeURIComponent(s)}`)
+            .join('&')
+        url += `?${params}`
+    }
 
     const response = await fetch(url, {
         method: 'GET',
