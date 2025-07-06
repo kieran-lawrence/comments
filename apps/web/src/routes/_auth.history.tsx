@@ -84,33 +84,25 @@ function HistoryPage() {
                     />
                     <Filter<CommentStatusOptions>
                         filterTitle="Comment Status"
-                        filterCount={{
-                            ALL: undefined,
-                            APPROVED: undefined,
-                            REJECTED: undefined,
-                            PENDING: undefined,
-                            FLAGGED: undefined,
-                        }}
+                        filterOptions={[
+                            'ALL',
+                            'APPROVED',
+                            'REJECTED',
+                            'PENDING',
+                            'FLAGGED',
+                        ]}
                         activeItem={statusFilter}
                         onClick={setStatusFilter}
                     />
                     <Filter<CommentStatusChangeByOptions>
                         filterTitle="Changed By"
-                        filterCount={{
-                            ALL: undefined,
-                            SYSTEM: undefined,
-                            STAFF: undefined,
-                            COMMUNITY: undefined,
-                        }}
+                        filterOptions={['ALL', 'SYSTEM', 'STAFF', 'COMMUNITY']}
                         activeItem={changedByFilter}
                         onClick={setChangedByFilter}
                     />
                     <Filter<SortOptions>
                         filterTitle="Sort"
-                        filterCount={{
-                            'Newest First': undefined,
-                            'Oldest First': undefined,
-                        }}
+                        filterOptions={['Newest First', 'Oldest First']}
                         activeItem={sort}
                         onClick={setSort}
                     />
