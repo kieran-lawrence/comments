@@ -87,7 +87,18 @@ export const Comment = ({ comment, onCommentReview, userId }: CommentProps) => {
                     </div>
                 </div>
             )}
-            <h2 className="commentTitle">{article.articleTitle}</h2>
+            <h2 className="commentTitle">
+                <Link
+                    to={`/articles`}
+                    hash={`articleCard-${article.articleId}`}
+                    search={{
+                        expanded: true,
+                        focusArticleId: article.articleId,
+                    }}
+                >
+                    {article.articleTitle}
+                </Link>
+            </h2>
             <p className="commentContent">{content}</p>
             <div className="commentActions">
                 <Button
@@ -132,12 +143,12 @@ export const Comment = ({ comment, onCommentReview, userId }: CommentProps) => {
                 </Link>
                 <span className="commentLink">
                     {/* TODO: This anchor won't work until we integrate it onto the frontend site where comments are displayed */}
-                    <Link
-                        to={`${comment.article.articleUrl}#comments?focusCommentId=${comment.id}`}
+                    <a
+                        href={`${comment.article.articleUrl}/comments?focusCommentId=${comment.id}`}
                         target="_blank"
                     >
                         View In Article
-                    </Link>
+                    </a>
                     <ExternalLinkIcon size={18} />
                 </span>
             </div>

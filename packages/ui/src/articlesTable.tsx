@@ -7,7 +7,7 @@ import {
 } from '@repo/shared-types'
 import { formatDistance } from 'date-fns'
 import { ChevronDownIcon } from './icons/chevronDown'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from './button'
 import { CheckIcon } from './icons/checkIcon'
 import { CrossIcon } from './icons/crossIcon'
@@ -67,6 +67,18 @@ const ArticleTableRow = ({
     onStatusChange,
 }: ArticleRowProps) => {
     const [isOpen, setIsOpen] = useState(false)
+
+    useEffect(() => {
+        const isExpanded =
+            new URLSearchParams(window.location.search).get('expanded') ===
+            'true'
+        const focusArticleId = new URLSearchParams(window.location.search).get(
+            'focusArticleId',
+        )
+        if (isExpanded && focusArticleId === article.articleId) {
+            setIsOpen(true)
+        }
+    }, [])
     return (
         <tr
             id={`articleCard-${article.articleId}`}
@@ -134,8 +146,9 @@ const ArticleTableRow = ({
                                 </time>
                             </span>
                             <Link
-                                to={`/moderate#commentCard-${comment.id}`}
+                                to={`/moderate`}
                                 className="textTitleItemSm grow line-clamp-1 overflow-ellipsis hover:underline"
+                                hash={`commentCard-${comment.id}`}
                             >
                                 {comment.content}
                             </Link>

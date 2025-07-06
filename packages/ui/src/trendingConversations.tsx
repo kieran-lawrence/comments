@@ -31,8 +31,12 @@ export const TrendingConversations = ({
                             >
                                 <td>
                                     <Link
-                                        to="commentLink"
-                                        href={`/articles#articleCard-${articleId}?expanded=true`}
+                                        className="commentLink"
+                                        to={`/articles`}
+                                        hash={`articleCard-${articleId}`}
+                                        search={{
+                                            expanded: 'true',
+                                        }}
                                     >
                                         {articleTitle}
                                     </Link>
