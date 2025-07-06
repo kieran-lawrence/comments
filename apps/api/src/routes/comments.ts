@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { PrismaClient } from '@prisma/client'
+import { Comment, PrismaClient } from '@prisma/client'
 import {
     commentStatusChangeBySchema,
     commentStatusSchema,
@@ -9,10 +9,23 @@ export const commentsRouter = Router()
 
 // GET /comments
 commentsRouter.get('/', async (req, res) => {
-    const { page } = req.query
+    const { page, page_size, status } = req.query
+    // Support multiple statuses: ?status=APPROVED&status=FLAGGED
+    let statusArray: string[] = []
+    if (Array.isArray(status)) {
+        statusArray = status
+            .filter((s): s is string => typeof s === 'string')
+            .filter((s) => commentStatusSchema.safeParse(s).success)
+    } else if (typeof status === 'string') {
+        if (commentStatusSchema.safeParse(status).success) {
+            statusArray = [status]
+        }
+    }
 
     try {
         const parsedPageNumber = typeof page === 'string' ? parseInt(page) : 0
+        const parsedPageSize =
+            typeof page_size === 'string' ? parseInt(page_size) : 15 // Limit to 15 comments by default
 
         const comments = await prisma.comment.findMany({
             include: {
@@ -29,8 +42,14 @@ commentsRouter.get('/', async (req, res) => {
             orderBy: {
                 createdAt: 'desc',
             },
-            take: 15, // Limit to 15 comments
-            skip: parsedPageNumber * 15, // Correctly calculate offset for pagination
+            where: {
+                status:
+                    statusArray.length > 0
+                        ? { in: statusArray as Comment['status'][] }
+                        : undefined, // Filter by status array if provided
+            },
+            take: parsedPageSize,
+            skip: parsedPageNumber * parsedPageSize, // Correctly calculate offset for pagination
         })
         res.status(200).json(comments)
     } catch (error) {
