@@ -91,6 +91,64 @@ commentsRouter.get('/:articleId', async (req, res) => {
     }
 })
 
+type CommentThread = Comment & { replies: CommentThread[] }
+// GET /:commentId/thread
+commentsRouter.get('/:commentId/thread', async (req, res) => {
+    const commentId = parseInt(req.params.commentId)
+    try {
+        // Find the topmost parent comment id
+        const topmostParentId = await findTopmostParentId(commentId)
+
+        // Fetch all comments belonging to the same article as the topmost parent
+        const rootComment = await prisma.comment.findUnique({
+            where: { id: topmostParentId },
+            include: {
+                article: true,
+            },
+        })
+
+        if (!rootComment) {
+            res.status(404).json({ error: 'Comment not found' })
+            return
+        }
+
+        // Fetch all comments for the same article (thread)
+        const comments = await prisma.comment.findMany({
+            where: { articleId: rootComment.articleId },
+            include: {
+                author: true,
+                reviewedBy: true,
+                flaggedBy: true,
+            },
+            orderBy: { createdAt: 'asc' },
+        })
+
+        // Build comment map with replies
+        const commentMap = new Map<number, CommentThread>()
+        comments.forEach((comment) => {
+            commentMap.set(comment.id, { ...comment, replies: [] })
+        })
+
+        // Build tree structure by linking replies to their parents
+        commentMap.forEach((comment) => {
+            if (comment.parentId) {
+                const parent = commentMap.get(comment.parentId)
+                if (parent) {
+                    parent.replies.push(comment)
+                }
+            }
+        })
+
+        res.json(commentMap.get(topmostParentId))
+    } catch (error) {
+        console.error(
+            `Error fetching comment thread for comment: ${commentId}`,
+            error,
+        )
+        res.status(500).json({ error: 'Internal server error' })
+    }
+})
+
 // POST /comments
 commentsRouter.post('/', async (req, res) => {
     //TODO: Add content validation / moderation
@@ -285,3 +343,27 @@ commentsRouter.post('/:id/like', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' })
     }
 })
+
+/** Finds the topmost parent comment id given any commentId */
+const findTopmostParentId = async (commentId: number): Promise<number> => {
+    let currentId = commentId
+    const MAX_SEARCH_DEPTH = 5 // Maximum depth to search for topmost parent
+    let depth = 0
+    // Loop until we find a comment with no parentId
+    while (depth < MAX_SEARCH_DEPTH) {
+        const comment = await prisma.comment.findUnique({
+            where: { id: currentId },
+            select: { parentId: true },
+        })
+        if (!comment) {
+            throw new Error(
+                `Unable to find parent comment for id: ${currentId}`,
+            )
+        }
+
+        if (!comment.parentId) return currentId
+        currentId = comment.parentId
+        depth++
+    }
+    return currentId // Return the last found parentId if max depth reached
+}
