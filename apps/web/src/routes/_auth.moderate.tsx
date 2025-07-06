@@ -16,11 +16,7 @@ import {
 } from '@repo/shared-types'
 import { useState, useMemo } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
-import {
-    getFilteredCommentsWithCounts,
-    searchComments,
-    sortComments,
-} from '../utils/helpers'
+import { searchComments, sortComments } from '../utils/helpers'
 
 export const Route = createFileRoute('/_auth/moderate')({
     component: ModeratePage,
@@ -33,44 +29,49 @@ export const Route = createFileRoute('/_auth/moderate')({
 })
 
 function ModeratePage() {
+    const { user, isLoading: authLoading } = useAuth0()
+
+    const [commentFilter, setCommentFilter] =
+        useState<CommentFilterOptions>('PENDING REVIEW')
+    const [sort, setSort] = useState<SortOptions>('Newest First')
+    const [searchTerm, setSearchTerm] = useState('')
+
+    // Fetch comments with statuses as query params
     const {
         data: comments,
         isLoading,
         isError,
         refetch,
     } = useQuery({
-        queryKey: ['getCommentsKey'],
-        queryFn: getComments,
+        queryKey: ['getCommentsKey', commentFilter, sort],
+        queryFn: () => getComments(commentFilter),
     })
-    const { user, isLoading: authLoading } = useAuth0()
-
-    const [commentFilter, setCommentFilter] =
-        useState<CommentFilterOptions>('Pending Review')
-    const [sort, setSort] = useState<SortOptions>('Newest First')
-    const [searchTerm, setSearchTerm] = useState('')
-
-    const filteredComments = useMemo(() => {
-        if (!comments) return null
-        return getFilteredCommentsWithCounts(sortComments(comments, sort))
-    }, [comments, sort])
 
     const searchFilteredComments = useMemo(() => {
-        if (!filteredComments) return null
-        if (!searchTerm) return filteredComments[commentFilter].comments
-        return searchComments(
-            filteredComments[commentFilter].comments,
-            searchTerm,
-        )
-    }, [filteredComments, searchTerm, commentFilter])
+        if (!comments) return null
+        const sortedComments = sortComments(comments, sort)
+
+        if (!searchTerm) return sortedComments
+        return searchComments(sortedComments, searchTerm)
+    }, [comments, searchTerm, sort])
 
     if (isLoading || authLoading) {
         return <LoadingOverlay />
     }
-    if (isError || !filteredComments || !searchFilteredComments || !user) {
+    if (isError || !searchFilteredComments) {
         throw new Error(
             `Encountered an issue while fetching comments data.\n Please try again later or contact us if the problem persists.`,
             {
                 cause: 'Error with query: getComments on /moderate route',
+            },
+        )
+    }
+
+    if (!user || !user.sub) {
+        throw new Error(
+            `Encountered an issue while fetching user information.\n Please try again later or contact us if the problem persists.`,
+            {
+                cause: 'No user returned from Auth0 on /moderate route',
             },
         )
     }
@@ -93,22 +94,18 @@ function ModeratePage() {
                     />
                     <Filter<CommentFilterOptions>
                         filterTitle="Comment Status"
-                        filterCount={{
-                            All: filteredComments.All.count,
-                            'Pending Review':
-                                filteredComments['Pending Review'].count,
-                            Approved: filteredComments.Approved.count,
-                            Rejected: filteredComments.Rejected.count,
-                        }}
+                        filterOptions={[
+                            'ALL',
+                            'PENDING REVIEW',
+                            'APPROVED',
+                            'REJECTED',
+                        ]}
                         activeItem={commentFilter}
                         onClick={setCommentFilter}
                     />
                     <Filter<SortOptions>
                         filterTitle="Sort"
-                        filterCount={{
-                            'Newest First': undefined,
-                            'Oldest First': undefined,
-                        }}
+                        filterOptions={['Newest First', 'Oldest First']}
                         activeItem={sort}
                         onClick={setSort}
                     />

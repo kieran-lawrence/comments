@@ -133,10 +133,10 @@ export type StatisticsResponse = EngagementSummaryResponse & {
 
 // ------- Filter/Sort Key Types -------
 export type CommentFilterOptions =
-    | 'All'
-    | 'Pending Review'
-    | 'Approved'
-    | 'Rejected'
+    | 'ALL'
+    | 'PENDING REVIEW'
+    | 'APPROVED'
+    | 'REJECTED'
 export type SortOptions = 'Newest First' | 'Oldest First'
 export type RoleFilterOptions = Role | 'ALL'
 export type CommentStatusOptions = CommentStatus | 'ALL'
