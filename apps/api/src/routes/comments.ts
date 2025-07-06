@@ -119,6 +119,11 @@ commentsRouter.get('/:commentId/thread', async (req, res) => {
                 author: true,
                 reviewedBy: true,
                 flaggedBy: true,
+                parent: {
+                    include: {
+                        author: true,
+                    },
+                },
             },
             orderBy: { createdAt: 'asc' },
         })
