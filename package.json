@@ -6,8 +6,10 @@
         "packages/*"
     ],
     "scripts": {
+        "start:web": "turbo run dev --filter=web",
+        "start:api": "turbo run dev --filter=api",
+        "start:docs": "turbo run dev --filter=docs",
         "build": "turbo run build",
-        "dev": "turbo run dev",
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\""
     },

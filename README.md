@@ -1,84 +1,69 @@
-# Turborepo starter
+# Comments Platform Monorepo
 
-This is a community-maintained example. If you experience a problem, please submit a pull request with a fix. GitHub Issues will be closed.
+The Comments Platform is a scalable, full-stack solution for managing user-generated comments across any web application. It includes an IaC based backend built using AWS SDK via Pulumi, a robust API, a modern moderation dashboard, and shared libraries for UI and types, all organized in a monorepo for streamlined development and deployment.
 
-## Using this example
+## Overview
 
-Run the following command:
+The repository is structured as a monorepo using [Turborepo](https://turborepo.org/), containing multiple apps and packages that together provide:
 
-```sh
-npx create-turbo@latest -e with-yarn
-```
+- A scalable comments API
+- A modern web moderation dashboard
+- Shared UI and type libraries
+- Infrastructure-as-code for cloud deployment
+- A documentation website outlining the platform capabilities and usages
 
-## What's inside?
+## Apps and Packages
 
-This Turborepo includes the following packages/apps:
+### Apps
 
-### Apps and Packages
+- **api**: REST API built using Express for comments, articles, users, and moderation. Uses Prisma ORM and supports status changes, threading, and moderation actions. Deployed as a Docker container.
+- **web**: React + Vite app for moderators and staff to review, approve, reject, and manage comments. Integrates with Auth0 for authentication and uses the API for all data.
+- **WIP: docs**: Astro app using Starlight for documentation, guides, and onboarding for the platform.
+- **infrastructure**: Pulumi-based infrastructure-as-code for deploying the API and related resources to AWS.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+### Packages
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- **@repo/ui**: Shared React component library (buttons, modals, comment cards, etc.) used by both `web` and `docs` apps.
+- **@repo/shared-types**: TypeScript types and schemas shared across all apps (API, web, docs).
+- **@repo/eslint-config**: Centralized ESLint configuration for consistent code quality across the monorepo.
+- **@repo/typescript-config**: Shared `tsconfig` base for all TypeScript projects.
+- **@repo/tailwind-config**: Shared Tailwind CSS and PostCSS configuration for consistent styling.
 
-### Utilities
+## Development
 
-This Turborepo has some additional tools already setup for you:
+This mono repo uses yarn workspaces
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+### Build all apps and packages
 
-### Build
+- Running `yarn build` will build all required apps using turbo
 
-To build all apps and packages, run the following command:
+### Local Dev
 
-```
-cd my-turborepo
-yarn build
-```
+- **Comments Dashboard:** `yarn start:web`
+- **API:** `yarn start:api` - you need to run `yarn build` before you can run this
+- **Docs:** `yarn start:docs`
 
-### Develop
+## Key Features
 
-To develop all apps and packages, run the following command:
+- **Type-safe, scalable API** with Prisma and Zod validation
+- **Modern React UI** for moderation and management
+- **Reusable UI components** and shared types
+- **Infrastructure-as-code** for AWS deployment
+- **Monorepo tooling** with Turborepo for fast, consistent builds
 
-```
-cd my-turborepo
-yarn dev
-```
+## Getting Started
 
-### Remote Caching
+TODO: Add doc site URL
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+- Check out the docs at [http://localhost:4321](http://localhost:4321) for a detailed breakdown of each app/package and how it's used
+- See the individual app and package `README.md` files for more details on setup, configuration, and deployment.
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+---
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+For more information, see:
 
-```
-cd my-turborepo
-npx turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+- [Turborepo Documentation](https://turborepo.com/docs)
+- [Vite Documentation](https://vitejs.dev/guide/)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [Pulumi Documentation](https://www.pulumi.com/docs/)
+- [Astro Documentation](https://docs.astro.build/)
