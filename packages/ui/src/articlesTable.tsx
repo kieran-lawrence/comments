@@ -18,11 +18,13 @@ type ArticlesTableProps = {
     articles: Schema_Article[]
     onCommentReview: (props: UpdateCommentStatusProps) => Promise<void>
     onStatusChange: (props: UpdateArticleStatusProps) => Promise<void>
+    userId: string
 }
 export const ArticlesTable = ({
     articles,
     onCommentReview,
     onStatusChange,
+    userId,
 }: ArticlesTableProps) => {
     return (
         <table className="w-full text-left flex flex-col gap-2">
@@ -50,6 +52,7 @@ export const ArticlesTable = ({
                         article={article}
                         onCommentReview={onCommentReview}
                         onStatusChange={onStatusChange}
+                        userId={userId}
                     />
                 ))}
             </tbody>
@@ -59,12 +62,14 @@ export const ArticlesTable = ({
 
 type ArticleRowProps = Omit<ArticlesTableProps, 'articles'> & {
     article: Schema_Article
+    userId: string
 }
 
 const ArticleTableRow = ({
     article,
     onCommentReview,
     onStatusChange,
+    userId,
 }: ArticleRowProps) => {
     const [isOpen, setIsOpen] = useState(false)
 
@@ -158,7 +163,7 @@ const ArticleTableRow = ({
                                         onCommentReview({
                                             commentId: comment.id,
                                             status: 'APPROVED',
-                                            userId: 2,
+                                            userId,
                                             changedBy: 'STAFF',
                                         })
                                     }
@@ -171,7 +176,7 @@ const ArticleTableRow = ({
                                         onCommentReview({
                                             commentId: comment.id,
                                             status: 'REJECTED',
-                                            userId: 2,
+                                            userId,
                                             changedBy: 'STAFF',
                                         })
                                     }
