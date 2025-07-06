@@ -7,17 +7,26 @@ import { formatDistance } from 'date-fns'
 import { LinkIcon } from './icons/linkIcon'
 import { ExternalLinkIcon } from './icons/externalLinkIcon'
 import { Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Modal } from './modal'
 import { CrossIcon } from './icons/crossIcon'
 import { CommentCardSmall } from './commentCardSmall'
+import { useQuery } from '@tanstack/react-query'
 
-type CommentProps = {
+export type CommentProps = {
     comment: Schema_Comment
-    onCommentReview: (props: UpdateCommentStatusProps) => Promise<void>
+    onCommentReview: (props: UpdateCommentStatusProps) => void
     userId: string
+    apiUrl: string
+    apiKey: string
 }
-export const Comment = ({ comment, onCommentReview, userId }: CommentProps) => {
+export const Comment = ({
+    comment,
+    onCommentReview,
+    userId,
+    apiKey,
+    apiUrl,
+}: CommentProps) => {
     const {
         author,
         createdAt,
@@ -29,6 +38,39 @@ export const Comment = ({ comment, onCommentReview, userId }: CommentProps) => {
         content,
     } = comment
     const [showModal, setShowModal] = useState(false)
+
+    const {
+        data: thread,
+        isLoading,
+        refetch: getCommentsInThread,
+    } = useQuery({
+        queryKey: ['getThreadKey', comment.id],
+        queryFn: async (): Promise<Schema_Comment> => {
+            const url = `${apiUrl}/comments/${comment.id}/thread`
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'x-api-key': apiKey,
+                },
+            })
+
+            if (!response.ok) {
+                throw new Error('Unable to retrieve Comments')
+            }
+
+            const res: Schema_Comment = await response.json()
+            return res
+        },
+        enabled: false, // Disable automatic fetching, so we only fetch when the modal is opened
+    })
+
+    // Memoize the comment thread to avoid unnecessary recalculations
+    const commentThread = useMemo(() => {
+        if (!thread || isLoading) return null
+        return getCommentThread(thread)
+    }, [thread, isLoading])
 
     // Get the base URL of the current page (i.e. `http://localhost:5173`)
     const BASE_URL = new URL(window.location.href).origin
@@ -51,7 +93,15 @@ export const Comment = ({ comment, onCommentReview, userId }: CommentProps) => {
         }
     }
 
+    const handleCommentReview = (props: UpdateCommentStatusProps) => {
+        onCommentReview(props)
+        // Refetch the thread to ensure we have the latest data after a review action
+        getCommentsInThread()
+        setShowModal(true) // Keep the modal open after review action
+    }
+
     const handleToggleModal = () => {
+        if (!showModal) getCommentsInThread() // Refetch the thread when opening the modal to ensure we have the latest data
         setShowModal((prev) => !prev)
         // Toggle the bodys overflow style to prevent scrolling when the modal is open
         document.body.style.overflow = showModal ? 'visible' : 'hidden'
@@ -160,7 +210,7 @@ export const Comment = ({ comment, onCommentReview, userId }: CommentProps) => {
                     <ExternalLinkIcon size={18} />
                 </span>
             </div>
-            {showModal && (
+            {showModal && commentThread && (
                 <Modal onClose={handleToggleModal}>
                     <div className="max-w-1/2 h-auto bg-bg-card rounded-md text-text-primary px-4 py-3 drop-shadow-lg">
                         <div className="flex items-center justify-between gap-4">
@@ -179,14 +229,28 @@ export const Comment = ({ comment, onCommentReview, userId }: CommentProps) => {
                                 Comment Thread
                             </h3>
                             <div className="flex flex-col gap-2 border-l-2 border-border-secondary pl-2">
-                                {getCommentThread(comment).map((reply) => (
+                                {/* Render the first comment from the array, this will always be the topmost parent comment */}
+                                {commentThread[0] && (
                                     <CommentCardSmall
-                                        key={reply.id}
-                                        comment={reply}
+                                        key={commentThread[0].id}
+                                        comment={commentThread[0]}
                                         onCommentReview={onCommentReview}
                                         userId={userId}
                                     />
-                                ))}
+                                )}
+                                {/* Render the rest of the comments, these will always be replies */}
+                                <div className="flex flex-col gap-2 border-l-2 border-border-secondary pl-2">
+                                    {commentThread.slice(1).map((reply) => (
+                                        <CommentCardSmall
+                                            key={reply.id}
+                                            comment={reply}
+                                            onCommentReview={
+                                                handleCommentReview
+                                            }
+                                            userId={userId}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -196,27 +260,21 @@ export const Comment = ({ comment, onCommentReview, userId }: CommentProps) => {
     )
 }
 
-/** Returns a thread of comments with the first comment at the beginning of the array */
-const getCommentThread = (comment: Schema_Comment): Schema_Comment[] => {
-    const thread: Schema_Comment[] = []
-
-    // If the comment has a parent, we add it to the thread
-    if (comment.parent) {
-        thread.push(comment.parent)
-
-        // If the parent has replies, we add them to the thread
-        if (comment.parent.replies.length > 0) {
-            comment.parent.replies.forEach((reply) => thread.push(reply))
-        }
-    } else {
-        // If it's a top-level comment, we add it directly to the thread
-        thread.push(comment)
-
-        // If there are replies, we add them to the thread
+/**
+ * Returns a flat array of all comments in the thread,
+ * Starting from the root comment and including all replies at any depth. (The API has a hard limit in place so it's safe to not include a max depth)
+ */
+const getCommentThread = (rootComment: Schema_Comment): Schema_Comment[] => {
+    // Stores all comments in the thread, including replies and their replies
+    const allComments: Schema_Comment[] = []
+    // Recursively collect all comments in the tree (all replies, and replies to replies, etc.)
+    const collectAll = (comment: Schema_Comment) => {
+        allComments.push(comment)
         if (comment.replies.length > 0) {
-            comment.replies.forEach((reply) => thread.push(reply))
+            comment.replies.forEach(collectAll)
         }
     }
+    collectAll(rootComment)
 
-    return thread
+    return allComments
 }
