@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as ErrorRouteImport } from './routes/error'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthIndexRouteImport } from './routes/_auth.index'
 import { Route as AuthUsersRouteImport } from './routes/_auth.users'
@@ -23,11 +22,6 @@ import { Route as AuthArticlesRouteImport } from './routes/_auth.articles'
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ErrorRoute = ErrorRouteImport.update({
-  id: '/error',
-  path: '/error',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -71,7 +65,6 @@ const AuthArticlesRoute = AuthArticlesRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/error': typeof ErrorRoute
   '/login': typeof LoginRoute
   '/articles': typeof AuthArticlesRoute
   '/dashboard': typeof AuthDashboardRoute
@@ -82,7 +75,6 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
 }
 export interface FileRoutesByTo {
-  '/error': typeof ErrorRoute
   '/login': typeof LoginRoute
   '/articles': typeof AuthArticlesRoute
   '/dashboard': typeof AuthDashboardRoute
@@ -95,7 +87,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
-  '/error': typeof ErrorRoute
   '/login': typeof LoginRoute
   '/_auth/articles': typeof AuthArticlesRoute
   '/_auth/dashboard': typeof AuthDashboardRoute
@@ -108,7 +99,6 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/error'
     | '/login'
     | '/articles'
     | '/dashboard'
@@ -119,7 +109,6 @@ export interface FileRouteTypes {
     | '/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/error'
     | '/login'
     | '/articles'
     | '/dashboard'
@@ -131,7 +120,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_auth'
-    | '/error'
     | '/login'
     | '/_auth/articles'
     | '/_auth/dashboard'
@@ -144,7 +132,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
-  ErrorRoute: typeof ErrorRoute
   LoginRoute: typeof LoginRoute
 }
 
@@ -155,13 +142,6 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/error': {
-      id: '/error'
-      path: '/error'
-      fullPath: '/error'
-      preLoaderRoute: typeof ErrorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth': {
@@ -247,7 +227,6 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
-  ErrorRoute: ErrorRoute,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
