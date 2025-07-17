@@ -10,7 +10,7 @@ import { formatDistance } from 'date-fns'
 import { LinkIcon } from './icons/linkIcon'
 import { ExternalLinkIcon } from './icons/externalLinkIcon'
 import { Link } from '@tanstack/react-router'
-import { useMemo, useState, ReactNode } from 'react'
+import { useMemo, useState } from 'react'
 import { Modal } from './modal'
 import { CrossIcon } from './icons/crossIcon'
 import { CommentCardSmall } from './commentCardSmall'
@@ -211,7 +211,7 @@ export const Comment = ({
                     {article.articleTitle}
                 </Link>
             </h2>
-            <p className="commentContent">{content}</p>
+            <RichTextComment value={JSON.parse(content)} />
             <div className="flex gap-3">
                 <Button
                     onClick={() =>

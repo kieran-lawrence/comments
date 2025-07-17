@@ -4,6 +4,7 @@ import { CheckIcon } from './icons/checkIcon'
 import { CrossIcon } from './icons/crossIcon'
 import { ReplyingToIcon } from './icons/replyingToIcon'
 import { CommentProps } from './commentCard'
+import { RichTextComment } from './richTextComment'
 
 export const CommentCardSmall = ({
     comment,
@@ -28,11 +29,11 @@ export const CommentCardSmall = ({
                             )}
                         </span>
                         {comment.parent && (
-                            <div className="commentReply">
+                            <div className="flex items-center gap-1 textTitleItemXXs leading-none">
                                 <ReplyingToIcon />
-                                <div className="commentReplyLabel">
+                                <div className="flex gap-0.5 items-center">
                                     <span>Replying to:</span>
-                                    <span className="commentReplyUser">
+                                    <span className="text-text-primary font-semibold">
                                         {comment.parent.author.name}
                                     </span>
                                 </div>
@@ -68,7 +69,9 @@ export const CommentCardSmall = ({
                         />
                     </div>
                 </div>
-                <p className="textTitleItemSm">{comment.content}</p>
+                <div className="textTitleItemSm">
+                    <RichTextComment value={JSON.parse(comment.content)} />
+                </div>
             </article>
         </div>
     )
