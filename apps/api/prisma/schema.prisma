@@ -23,7 +23,7 @@ model User {
   comments             Comment[]              @relation("CommentToUser")
   commentStatusChanges CommentStatusChanges[]
   reviewedComments     Comment[]              @relation("CommentReviewedByUser")
-  flaggedComments      Comment[]              @relation("CommentFlaggedByUser")
+  flaggedComments      CommentFlag[]
   active               Boolean                @default(true)
   deleted              Boolean                @default(false)
   suspended            Boolean                @default(false)
@@ -35,6 +35,7 @@ model User {
   User                 User[]                 @relation("UserSuspendedBy")
   ignoredUsers         UserIgnoredUsers[]     @relation("UserIgnoredUsers_user")
   ignoredByUsers       UserIgnoredUsers[]     @relation("UserIgnoredUsers_ignored")
+  likedComments        CommentLike[]
 }
 
 model UserIgnoredUsers {
@@ -76,8 +77,9 @@ model Comment {
   statusChanges CommentStatusChanges[]
   reviewedBy    User?                  @relation("CommentReviewedByUser", fields: [reviewedById], references: [id], onDelete: Restrict)
   reviewedById  String?
-  flaggedBy     User?                  @relation("CommentFlaggedByUser", fields: [flaggedById], references: [id], onDelete: Restrict)
-  flaggedById   String?
+  flaggedCount  Int                    @default(0)
+  likes         CommentLike[]
+  flags         CommentFlag[]
 }
 
 model CommentStatusChanges {
@@ -91,6 +93,28 @@ model CommentStatusChanges {
   changedById   String?
   changedReason String?
   changedAt     DateTime              @default(now())
+}
+
+model CommentLike {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, commentId])
+}
+
+model CommentFlag {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, commentId])
 }
 
 enum Role {

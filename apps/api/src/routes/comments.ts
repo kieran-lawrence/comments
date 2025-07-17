@@ -4,6 +4,8 @@ import {
     commentStatusChangeBySchema,
     commentStatusSchema,
 } from '../types/types'
+import { containsBannedWords, containsSuspectWords } from '../utils/helpers'
+import { logger } from '../logger'
 const prisma = new PrismaClient()
 export const commentsRouter = Router()
 
@@ -32,7 +34,7 @@ commentsRouter.get('/', async (req, res) => {
                 article: true,
                 author: true,
                 reviewedBy: true,
-                flaggedBy: true,
+                flags: true,
                 parent: {
                     include: {
                         author: true,
@@ -118,7 +120,7 @@ commentsRouter.get('/:commentId/thread', async (req, res) => {
             include: {
                 author: true,
                 reviewedBy: true,
-                flaggedBy: true,
+                flags: true,
                 parent: {
                     include: {
                         author: true,
@@ -298,15 +300,38 @@ commentsRouter.patch('/:id/status', async (req, res) => {
                 changedBy: changedByParsed, // Defaults to 'SYSTEM' if not provided
             },
         })
+
+        const isFlagged = status === 'FLAGGED'
+
+        // Check if the comment is already flagged by the user
+        const userHasFlagged = comment.flags.find(
+            (flag) => flag.userId === changedByUser?.id,
+        )
+
+        // Increment flagged count if status is FLAGGED and user has not flagged before
+        const shouldIncrementFlaggedCount = isFlagged && !userHasFlagged
+
         // Update the comment status
         const updatedComment = await prisma.comment.update({
             where: { id: comment.id },
             data: {
                 status: newStatus,
-                reviewedById: newStatus === 'FLAGGED' ? null : changedById, // Optional user ID for the change
-                flaggedById: newStatus === 'FLAGGED' ? changedById : null, // Set flaggedById if status is FLAGGED, else set it back to null
+                flaggedCount: shouldIncrementFlaggedCount
+                    ? comment.flaggedCount + 1
+                    : comment.flaggedCount,
+                reviewedById: isFlagged ? null : changedByUser?.id, // Optional user ID for the change
             },
         })
+
+        // If the comment is flagged, add a record to the CommentFlag table
+        if (isFlagged && changedByUser) {
+            await prisma.commentFlag.create({
+                data: {
+                    commentId: updatedComment.id,
+                    userId: changedByUser.id,
+                },
+            })
+        }
         res.status(201).json(updatedComment)
     } catch (error) {
         console.error('Error updating comment status:', error)
@@ -317,32 +342,67 @@ commentsRouter.patch('/:id/status', async (req, res) => {
 // POST /comments/:id/like
 commentsRouter.post('/:id/like', async (req, res) => {
     const commentId = parseInt(req.params.id)
+    const { email, userId } = req.body
 
-    if (!commentId) {
-        res.status(400).json({ error: 'Invalid comment ID' })
+    if (!commentId || (!email && !userId)) {
+        res.status(400).json({
+            error: 'Missing one or more of the following required fields: commentId, email, userId',
+        })
         return
     }
 
     try {
-        // Get current like count
-        const comment = await prisma.comment.findFirst({
+        // Check if the comment exists
+        const comment = await prisma.comment.findUnique({
             where: { id: commentId },
-            select: { id: true, likeCount: true },
         })
         if (!comment) {
             res.status(404).json({ error: 'Comment not found' })
             return
         }
-        // Increment the like count
-        const newCount = comment.likeCount + 1
-        // Update the comment with the new like count
-        const newLike = await prisma.comment.update({
-            where: { id: comment.id },
-            data: {
-                likeCount: newCount,
+
+        const user = await prisma.user.findUnique({
+            where: { email, id: userId },
+        })
+        if (!user) {
+            res.status(404).json({ error: 'User not found' })
+            return
+        }
+
+        // Check if the user has already liked this comment
+        const existingLike = await prisma.commentLike.findUnique({
+            where: {
+                userId_commentId: {
+                    userId: user.id,
+                    commentId: commentId,
+                },
             },
         })
-        res.status(200).json(newLike)
+
+        if (existingLike) {
+            // User already liked this comment
+            res.status(409).json({
+                error: 'User has already liked this comment',
+            })
+            return
+        }
+
+        // Create the like record
+        await prisma.commentLike.create({
+            data: {
+                userId: user.id,
+                commentId: commentId,
+            },
+        })
+
+        // Increment the like count
+        const updatedComment = await prisma.comment.update({
+            where: { id: comment.id },
+            data: {
+                likeCount: comment.likeCount + 1,
+            },
+        })
+        res.status(200).json(updatedComment)
     } catch (error) {
         console.error('Error liking comment:', error)
         res.status(500).json({ error: 'Internal server error' })
