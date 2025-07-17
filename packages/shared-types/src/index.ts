@@ -78,8 +78,9 @@ export type Schema_Comment = {
     statusChanges?: Schema_CommentStatusChange[]
     reviewedBy: Schema_User | null
     reviewedById: number | null
-    flaggedBy: Schema_User | null
-    flaggedById: number | null
+    flaggedCount: number
+    likes?: Schema_CommentLike[]
+    flags?: Schema_CommentFlag[]
 }
 
 export type Schema_UserIgnoredUsers = {
@@ -88,6 +89,24 @@ export type Schema_UserIgnoredUsers = {
     ignoredAt: string
     user: Schema_User
     ignored: Schema_User
+}
+
+export type Schema_CommentLike = {
+    id: number
+    userId: string
+    commentId: number
+    createdAt: string
+    comment?: Schema_Comment
+    user?: Schema_User
+}
+
+export type Schema_CommentFlag = {
+    id: number
+    userId: string
+    commentId: number
+    createdAt: string
+    comment?: Schema_Comment
+    user?: Schema_User
 }
 
 // ------- API Parameter Types -------
