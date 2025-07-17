@@ -75,6 +75,11 @@ commentsRouter.get('/:articleId', async (req, res) => {
             },
             include: {
                 author: true,
+                likes: {
+                    include: {
+                        user: true,
+                    },
+                },
                 parent: {
                     include: {
                         author: true,
@@ -159,16 +164,23 @@ commentsRouter.get('/:commentId/thread', async (req, res) => {
 // POST /comments
 commentsRouter.post('/', async (req, res) => {
     //TODO: Add content validation / moderation
-    const { content, authorId, articleId } = req.body
+    const { content, authorId, authorEmail, articleId } = req.body
 
-    if (!content || !authorId || !articleId) {
+    if (!content || (!authorId && !authorEmail) || !articleId) {
         res.status(400).json({
-            error: 'Missing one or more of the following required fields: content, authorId, articleId',
+            error: 'Missing one or more of the following required fields: content, authorId, authorEmail, articleId',
         })
         return
     }
 
     try {
+        const author = await prisma.user.findUnique({
+            where: { id: authorId, email: authorEmail },
+        })
+        if (!author) {
+            res.status(404).json({ error: 'Author not found' })
+            return
+        }
         const shouldPreModerate = containsSuspectWords(content)
         const shouldReject = containsBannedWords(content)
         const commentStatusInfo: Partial<Comment> | undefined = shouldReject
@@ -182,7 +194,7 @@ commentsRouter.post('/', async (req, res) => {
         const newComment = await prisma.comment.create({
             data: {
                 content,
-                authorId,
+                authorId: author.id,
                 articleId,
                 ...commentStatusInfo,
             },
@@ -210,26 +222,33 @@ commentsRouter.post('/', async (req, res) => {
 
 // POST /comments/:id/reply
 commentsRouter.post('/:id/reply', async (req, res) => {
-    const { content, authorId, articleId } = req.body
+    const { content, authorId, authorEmail, articleId } = req.body
     const parentId = parseInt(req.params.id)
 
     if (!parentId) {
         res.status(400).json({ error: 'Invalid comment parent ID' })
         return
     }
-    if (!content || !authorId || !articleId) {
+    if (!content || (!authorId && !authorEmail) || !articleId) {
         res.status(400).json({
-            error: 'Missing one or more of the following required fields: content, authorId, articleId',
+            error: 'Missing one or more of the following required fields: content, authorId, authorEmail, articleId',
         })
         return
     }
 
     try {
+        const author = await prisma.user.findUnique({
+            where: { id: authorId, email: authorEmail },
+        })
+        if (!author) {
+            res.status(404).json({ error: 'Author not found' })
+            return
+        }
         const newReply = await prisma.comment.create({
             data: {
                 articleId,
                 content,
-                authorId,
+                authorId: author.id,
                 parentId,
             },
         })
@@ -242,21 +261,28 @@ commentsRouter.post('/:id/reply', async (req, res) => {
 
 // PATCH /comments/:id
 commentsRouter.patch('/:id', async (req, res) => {
-    const { content, userId } = req.body
+    const { content, userId, userEmail } = req.body
     const commentId = parseInt(req.params.id)
 
     if (!commentId) {
         res.status(400).json({ error: 'Invalid comment ID' })
         return
     }
-    if (!content) {
+    if (!content || (!userId && !userEmail)) {
         res.status(400).json({
-            error: 'Missing required field: content',
+            error: 'Missing one or more of the following required fields: content, userId, userEmail',
         })
         return
     }
 
     try {
+        const user = await prisma.user.findUnique({
+            where: { id: userId, email: userEmail },
+        })
+        if (!user) {
+            res.status(404).json({ error: 'User not found' })
+            return
+        }
         const comment = await prisma.comment.findFirst({
             where: { id: commentId },
         })
@@ -264,7 +290,7 @@ commentsRouter.patch('/:id', async (req, res) => {
             res.status(404).json({ error: 'Comment not found' })
             return
         }
-        if (comment.authorId !== userId) {
+        if (comment.authorId !== user.id) {
             res.status(403).json({
                 error: 'You are not authorised to edit this comment',
             })
@@ -287,7 +313,8 @@ commentsRouter.patch('/:id', async (req, res) => {
 
 // PATCH /comments/:id/status
 commentsRouter.patch('/:id/status', async (req, res) => {
-    const { status, changedById, changedReason, changedBy } = req.body
+    const { status, changedById, changedByEmail, changedReason, changedBy } =
+        req.body
     const commentId = parseInt(req.params.id)
 
     if (!commentId) {
@@ -310,17 +337,24 @@ commentsRouter.patch('/:id/status', async (req, res) => {
         // Ensure the comment exists
         const comment = await prisma.comment.findFirst({
             where: { id: commentId },
+            include: {
+                flags: true,
+            },
         })
         if (!comment) {
             throw new Error('Comment not found')
         }
+
+        const changedByUser = await prisma.user.findUnique({
+            where: { email: changedByEmail, id: changedById },
+        })
         // Update the CommentStatusChanges table
         await prisma.commentStatusChanges.create({
             data: {
                 commentId: comment.id,
                 oldStatus: comment.status,
                 newStatus,
-                changedById: changedById, // Optional user ID for the change
+                changedById: changedByUser?.id, // Optional user ID for the change
                 changedReason, // Optional reason for the change
                 changedBy: changedByParsed, // Defaults to 'SYSTEM' if not provided
             },
@@ -332,6 +366,13 @@ commentsRouter.patch('/:id/status', async (req, res) => {
         const userHasFlagged = comment.flags.find(
             (flag) => flag.userId === changedByUser?.id,
         )
+
+        // If no user was found for changedByEmail or changedById, log a warning
+        if (!changedByUser) {
+            logger.warn(
+                `No user found for changedByEmail: ${changedByEmail} or changedById: ${changedById}. Unable to update comment flag status.`,
+            )
+        }
 
         // Increment flagged count if status is FLAGGED and user has not flagged before
         const shouldIncrementFlaggedCount = isFlagged && !userHasFlagged

@@ -65,8 +65,20 @@ articlesRouter.get('/:id/count', async (req, res) => {
     }
 
     try {
+        const article = await prisma.article.findUnique({
+            where: { id: articleId },
+        })
+        if (article && article.status === 'CLOSED') {
+            res.status(204).json({
+                message: 'Commenting is disabled for this article.',
+            })
+            return
+        }
         const commentCount = await prisma.comment.count({
-            where: { articleId },
+            where: {
+                articleId,
+                status: 'APPROVED', // Count only approved comments
+            },
         })
         res.status(200).json({ count: commentCount })
     } catch (error) {
