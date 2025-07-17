@@ -98,6 +98,8 @@ const getButtonStateForStatus = (
                 ? 'approve-pending'
                 : 'reject-pending'
         case 'FLAGGED':
-            return buttonType === 'approve' ? 'approved' : 'reject-neutral'
+            return buttonType === 'approve'
+                ? 'approve-pending'
+                : 'reject-pending'
     }
 }
