@@ -13,6 +13,7 @@ import { CheckIcon } from './icons/checkIcon'
 import { CrossIcon } from './icons/crossIcon'
 import { ExternalLinkIcon } from './icons/externalLinkIcon'
 import { Link } from '@tanstack/react-router'
+import { RichTextComment } from './richTextComment'
 
 type ArticlesTableProps = {
     articles: Schema_Article[]
@@ -155,7 +156,9 @@ const ArticleTableRow = ({
                                 className="textTitleItemSm grow line-clamp-1 overflow-ellipsis hover:underline"
                                 hash={`commentCard-${comment.id}`}
                             >
-                                {comment.content}
+                                <RichTextComment
+                                    value={JSON.parse(comment.content)}
+                                />
                             </Link>
                             <div className="flex gap-1 flex-shrink-0">
                                 <Button
