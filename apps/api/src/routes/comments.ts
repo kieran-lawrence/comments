@@ -169,13 +169,38 @@ commentsRouter.post('/', async (req, res) => {
     }
 
     try {
+        const shouldPreModerate = containsSuspectWords(content)
+        const shouldReject = containsBannedWords(content)
+        const commentStatusInfo: Partial<Comment> | undefined = shouldReject
+            ? { status: 'REJECTED' }
+            : shouldPreModerate
+              ? {
+                    status: 'FLAGGED',
+                    flaggedCount: 1,
+                }
+              : undefined
         const newComment = await prisma.comment.create({
             data: {
                 content,
                 authorId,
                 articleId,
+                ...commentStatusInfo,
             },
         })
+
+        // Update the CommentStatusChanges table if comment has been pre-moderated
+        if (shouldPreModerate || shouldReject) {
+            await prisma.commentStatusChanges.create({
+                data: {
+                    commentId: newComment.id,
+                    oldStatus: 'PENDING', // TODO: Can we extract the default value for this column instead of hard coding it?
+                    newStatus: shouldReject ? 'REJECTED' : 'FLAGGED',
+                    changedReason: 'Inappropriate',
+                    changedBy: 'SYSTEM',
+                },
+            })
+        }
+
         res.status(201).json(newComment)
     } catch (error) {
         console.error('Error creating comment:', error)
