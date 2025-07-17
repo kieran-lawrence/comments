@@ -1,5 +1,5 @@
 import {
-    CommentStatusChangesTable,
+    CommentStatusChanges,
     ErrorComponent,
     Filter,
     LoadingOverlay,
@@ -109,9 +109,7 @@ function HistoryPage() {
                 </div>
             }
             mainContent={
-                <CommentStatusChangesTable
-                    statusChanges={searchFilteredComments}
-                />
+                <CommentStatusChanges statusChanges={searchFilteredComments} />
             }
         />
     )
