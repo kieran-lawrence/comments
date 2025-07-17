@@ -1,17 +1,29 @@
-import './styles/commentCard.css'
 import { Button } from './button'
 import { FlagIcon } from './icons/flagIcon'
 import { ReplyingToIcon } from './icons/replyingToIcon'
-import { Schema_Comment, UpdateCommentStatusProps } from '@repo/shared-types'
+import {
+    CommentStatus,
+    Schema_Comment,
+    UpdateCommentStatusProps,
+} from '@repo/shared-types'
 import { formatDistance } from 'date-fns'
 import { LinkIcon } from './icons/linkIcon'
 import { ExternalLinkIcon } from './icons/externalLinkIcon'
 import { Link } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, ReactNode } from 'react'
 import { Modal } from './modal'
 import { CrossIcon } from './icons/crossIcon'
 import { CommentCardSmall } from './commentCardSmall'
 import { useQuery } from '@tanstack/react-query'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from './dropdownMenu'
+import { RichTextComment } from './richTextComment'
 
 export type CommentProps = {
     comment: Schema_Comment
@@ -33,7 +45,7 @@ export const Comment = ({
         parent,
         status,
         reviewedBy,
-        flaggedBy,
+        flags,
         article,
         content,
     } = comment
@@ -107,22 +119,37 @@ export const Comment = ({
         document.body.style.overflow = showModal ? 'visible' : 'hidden'
     }
 
+    const handleUpdateCommentFlag = (
+        newStatus: Extract<CommentStatus, 'APPROVED' | 'REJECTED'>,
+    ) => {
+        const updateProps: UpdateCommentStatusProps = {
+            commentId: comment.id,
+            status: newStatus,
+            userId,
+            changedBy: 'STAFF',
+        }
+        onCommentReview(updateProps)
+    }
+
     return (
-        <article id={`commentCard-${comment.id}`} className="commentContainer">
-            <div className="commentTop">
-                <div>
+        <article
+            id={`commentCard-${comment.id}`}
+            className="flex flex-col gap-2 w-full py-2 px-4 border border-bg-card-alt bg-bg-card text-text-primary rounded-md textTitleItemSm"
+        >
+            <div className="flex justify-between commentTop">
+                <div className="flex items-center gap-2">
                     <span>{author.name}</span>
-                    <span className="commentDate">
+                    <span className="text-text-secondary textTitleItemXs lowercase">
                         {formatDistance(new Date(createdAt), new Date(), {
                             addSuffix: true,
                         })}
                     </span>
                     {parent && (
-                        <div className="commentReply">
+                        <div className="flex items-center gap-1 text-text-secondary textTitleItemXs ml-4">
                             <ReplyingToIcon />
-                            <div className="commentReplyLabel">
+                            <div className="flex gap-0.5">
                                 <span>Replying to:</span>
-                                <span className="commentReplyUser">
+                                <span className="text-text-primary font-bold">
                                     {parent.author.name}
                                 </span>
                             </div>
@@ -130,25 +157,49 @@ export const Comment = ({
                     )}
                 </div>
                 <button
-                    className="rounded-sm border-1 border-border-primary"
+                    className="flex justify-center items-center gap-2 py-1 px-2 cursor-pointer rounded-sm border-1 border-border-primary uppercase transition-colors duration-200 hover:bg-bg-card-alt font-medium"
                     onClick={handleLinkButtonClick}
                 >
-                    <LinkIcon />
+                    <LinkIcon size={18} />
                     <span id={`copyLinkText-${comment.id}`}>Copy Link</span>
                 </button>
             </div>
             {status === 'FLAGGED' && (
-                <div className="commentFlag">
-                    <FlagIcon />
-                    <div className="commentFlagLabel">
-                        <span>Flagged by:</span>
-                        <span className="commentFlagUser">
-                            {flaggedBy?.name ?? 'Community Member'}
-                        </span>
-                    </div>
-                </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger className="flex items-center gap-2 hover:bg-bg-card-alt transition-colors duration-200 p-1 rounded-md w-fit">
+                        <FlagIcon />
+                        <div className="flex items-center gap-0.5 px-1 textTitleItemXs cursor-pointer">
+                            <span className="font-medium">Flagged by:</span>
+                            <span className="text-text-secondary">
+                                {comment.flaggedCount > 1 ? (
+                                    <b className="font-semibold">
+                                        {comment.flaggedCount} users
+                                    </b>
+                                ) : (
+                                    (flags?.[0]?.user?.name ?? 'System')
+                                )}
+                            </span>
+                        </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="bg-bg-card text-text-primary">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator className="bg-border-primary/30" />
+                        <DropdownMenuItem
+                            className="cursor-pointer hover:bg-bg-card-alt transition-colors duration-200"
+                            onClick={() => handleUpdateCommentFlag('APPROVED')}
+                        >
+                            Remove flag and approve
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            className="cursor-pointer hover:bg-bg-card-alt transition-colors duration-200"
+                            onClick={() => handleUpdateCommentFlag('REJECTED')}
+                        >
+                            Remove flag and reject
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             )}
-            <h2 className="commentTitle">
+            <h2 className="text-text-primary textTitleItemSm hover:text-text-primary/50 transition-colors duration-200 underline capitalize font-semibold">
                 <Link
                     to={`/articles`}
                     hash={`articleCard-${article.articleId}`}
@@ -161,7 +212,7 @@ export const Comment = ({
                 </Link>
             </h2>
             <p className="commentContent">{content}</p>
-            <div className="commentActions">
+            <div className="flex gap-3">
                 <Button
                     onClick={() =>
                         onCommentReview({
@@ -187,19 +238,19 @@ export const Comment = ({
                     type="reject"
                 />
                 {reviewedBy && (
-                    <div className="commentReviewedBy">
+                    <div className="flex flex-col justify-center gap-1 textTitleItemSm leading-5">
                         <span>Reviewed by:</span>
-                        <span className="commentReviewedByUser">
+                        <span className="text-text-secondary font-normal">
                             {reviewedBy.name}
                         </span>
                     </div>
                 )}
             </div>
-            <div className="linksContainer">
+            <div className="flex gap-4">
                 <button className="commentLink" onClick={handleToggleModal}>
                     View Thread
                 </button>
-                <span className="commentLink">
+                <span className="flex items-center gap-1 commentLink">
                     {/* TODO: This anchor won't work until we integrate it onto the frontend site where comments are displayed */}
                     <a
                         href={`${comment.article.articleUrl}/comments?focusCommentId=${comment.id}`}
@@ -239,18 +290,20 @@ export const Comment = ({
                                     />
                                 )}
                                 {/* Render the rest of the comments, these will always be replies */}
-                                <div className="flex flex-col gap-2 border-l-2 border-border-secondary pl-2">
-                                    {commentThread.slice(1).map((reply) => (
-                                        <CommentCardSmall
-                                            key={reply.id}
-                                            comment={reply}
-                                            onCommentReview={
-                                                handleCommentReview
-                                            }
-                                            userId={userId}
-                                        />
-                                    ))}
-                                </div>
+                                {commentThread.length > 1 && (
+                                    <div className="flex flex-col gap-2 border-l-2 border-border-secondary pl-2">
+                                        {commentThread.slice(1).map((reply) => (
+                                            <CommentCardSmall
+                                                key={reply.id}
+                                                comment={reply}
+                                                onCommentReview={
+                                                    handleCommentReview
+                                                }
+                                                userId={userId}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
