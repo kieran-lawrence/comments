@@ -19,15 +19,38 @@ export default defineConfig({
             ],
             sidebar: [
                 {
-                    label: 'Guides',
+                    label: 'Apps',
                     items: [
                         // Each item here is one entry in the navigation menu.
-                        { label: 'Example Guide', slug: 'guides/example' },
+                        { label: 'API', slug: 'apps/api' },
+                        { label: 'Dashboard', slug: 'apps/web' },
+                        {
+                            label: 'Infrastructure',
+                            slug: 'apps/infrastructure',
+                        },
                     ],
                 },
                 {
-                    label: 'Reference',
-                    autogenerate: { directory: 'reference' },
+                    label: 'Packages',
+                    items: [
+                        { label: 'Component Library', slug: 'packages/ui' },
+                        {
+                            label: 'ESLint Config',
+                            slug: 'packages/eslint-config',
+                        },
+                        {
+                            label: 'Shared Types',
+                            slug: 'packages/shared-types',
+                        },
+                        {
+                            label: 'Tailwind Config',
+                            slug: 'packages/tailwind-config',
+                        },
+                        {
+                            label: 'TypeScript Config',
+                            slug: 'packages/typescript-config',
+                        },
+                    ],
                 },
             ],
         }),
