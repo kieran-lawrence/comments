@@ -4,7 +4,7 @@ import {
     type ChartConfig,
     ChartTooltip,
     ChartTooltipContent,
-} from './chart'
+} from './radix/chart'
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import { format } from 'date-fns'
 

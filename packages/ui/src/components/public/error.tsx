@@ -1,5 +1,3 @@
-import { ReactNode } from 'react'
-
 type ErrorComponentProps = {
     message: string
     details?: string

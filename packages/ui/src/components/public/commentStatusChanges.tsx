@@ -1,7 +1,7 @@
 import { CommentStatus, Schema_CommentStatusChange } from '@repo/shared-types'
 import { formatDistance } from 'date-fns'
-import { QuestionIcon } from './icons/questionIcon'
-import { RichTextComment } from './richTextComment'
+import { QuestionIcon } from '../../icons/questionIcon'
+import { RichTextComment } from '../richTextComment'
 
 export const CommentStatusChanges = ({
     statusChanges,

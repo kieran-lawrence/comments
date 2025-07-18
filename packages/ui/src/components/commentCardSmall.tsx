@@ -1,9 +1,9 @@
 import { formatDistance } from 'date-fns'
 import { Button } from './button'
-import { CheckIcon } from './icons/checkIcon'
-import { CrossIcon } from './icons/crossIcon'
-import { ReplyingToIcon } from './icons/replyingToIcon'
-import { CommentProps } from './commentCard'
+import { CheckIcon } from '../icons/checkIcon'
+import { CrossIcon } from '../icons/crossIcon'
+import { ReplyingToIcon } from '../icons/replyingToIcon'
+import { CommentProps } from './public/commentCard'
 import { RichTextComment } from './richTextComment'
 
 export const CommentCardSmall = ({

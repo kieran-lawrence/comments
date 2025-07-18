@@ -1,19 +1,19 @@
-import { Button } from './button'
-import { FlagIcon } from './icons/flagIcon'
-import { ReplyingToIcon } from './icons/replyingToIcon'
+import { Button } from '../button'
+import { FlagIcon } from '../../icons/flagIcon'
+import { ReplyingToIcon } from '../../icons/replyingToIcon'
 import {
     CommentStatus,
     Schema_Comment,
     UpdateCommentStatusProps,
 } from '@repo/shared-types'
 import { formatDistance } from 'date-fns'
-import { LinkIcon } from './icons/linkIcon'
-import { ExternalLinkIcon } from './icons/externalLinkIcon'
+import { LinkIcon } from '../../icons/linkIcon'
+import { ExternalLinkIcon } from '../../icons/externalLinkIcon'
 import { Link } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
-import { Modal } from './modal'
-import { CrossIcon } from './icons/crossIcon'
-import { CommentCardSmall } from './commentCardSmall'
+import { Modal } from '../modal'
+import { CrossIcon } from '../../icons/crossIcon'
+import { CommentCardSmall } from '../commentCardSmall'
 import { useQuery } from '@tanstack/react-query'
 import {
     DropdownMenu,
@@ -22,8 +22,8 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from './dropdownMenu'
-import { RichTextComment } from './richTextComment'
+} from '../radix/dropdownMenu'
+import { RichTextComment } from '../richTextComment'
 
 export type CommentProps = {
     comment: Schema_Comment

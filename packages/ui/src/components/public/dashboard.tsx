@@ -1,8 +1,8 @@
 import { StatisticsResponse } from '@repo/shared-types'
-import { BarChartComponent } from './barChart'
-import { EnagementSummary } from './engagementSummary'
-import { LineChartComponent } from './lineChart'
-import { TrendingConversations } from './trendingConversations'
+import { BarChartComponent } from '../barChart'
+import { EnagementSummary } from '../engagementSummary'
+import { LineChartComponent } from '../lineChart'
+import { TrendingConversations } from '../trendingConversations'
 
 export const CommentsDashboard = ({
     statistics,

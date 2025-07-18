@@ -1,11 +1,11 @@
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
-import { Card, CardContent, CardHeader, CardTitle } from './card'
+import { Card, CardContent, CardHeader, CardTitle } from './radix/card'
 import {
     ChartConfig,
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
-} from './chart'
+} from './radix/chart'
 import { RecentCommentsResponse } from '@repo/shared-types'
 import { format } from 'date-fns'
 

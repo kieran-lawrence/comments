@@ -6,14 +6,14 @@ import {
     UpdateCommentStatusProps,
 } from '@repo/shared-types'
 import { formatDistance } from 'date-fns'
-import { ChevronDownIcon } from './icons/chevronDown'
+import { ChevronDownIcon } from '../../icons/chevronDown'
 import { useEffect, useState } from 'react'
-import { Button } from './button'
-import { CheckIcon } from './icons/checkIcon'
-import { CrossIcon } from './icons/crossIcon'
-import { ExternalLinkIcon } from './icons/externalLinkIcon'
+import { Button } from '../button'
+import { CheckIcon } from '../../icons/checkIcon'
+import { CrossIcon } from '../../icons/crossIcon'
+import { ExternalLinkIcon } from '../../icons/externalLinkIcon'
 import { Link } from '@tanstack/react-router'
-import { RichTextComment } from './richTextComment'
+import { RichTextComment } from '../richTextComment'
 
 type ArticlesTableProps = {
     articles: Schema_Article[]
