@@ -35,7 +35,7 @@ graph TD
 
 ## Tooling
 
-- **Pulumi:** Infrastructure as Code for provisioning AWS resources (e.g., Lambda, API Gateway, S3, IAM roles).
+- **Pulumi:** Infrastructure as Code for provisioning AWS resources
 - **TypeScript:** Strong typing and code sharing with app and package code.
 - **Utilities:** Custom helpers in `/apps/infrastructure/utils` for resource definitions and type safety.
 

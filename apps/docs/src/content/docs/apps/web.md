@@ -3,19 +3,10 @@ title: Comments Dashboard
 description: Reference documentation for the Web frontend in `/apps/web`
 ---
 
-The Web projct contains the Comments moderation dashboard which is built with React, Vite, and TypeScript. It provides the means for staff to interact with articles, comments, users, and statistics. It connects to the [Comments API](/apps/api)
+The Web project contains the Comments moderation dashboard which is built with React, Vite, and TypeScript. It provides the means for staff to interact with articles, comments, users, and statistics. It connects to the [Comments API](/apps/api)
 
 - **Location:** `/apps/web`
 - **Tech Stack:** React, Vite, TypeScript, Tailwind CSS
-  **Internal Packages:** Uses [`ui`](/packages/ui), [`tailwind-config`](/packages/tailwind-config), [`shared-types`](/packages/shared-types), [`eslint-config`](/packages/eslint-config), [`typescript-config`](/packages/typescript-config) from `/packages`
-  [`ui`](/packages/ui): Shared React components (tables, cards, charts, etc.)
-  [`tailwind-config`](/packages/tailwind-config): Shared Tailwind and PostCSS config
-  [`shared-types`](/packages/shared-types): Common types for API and frontend
-  [`eslint-config`](/packages/eslint-config): Shared linting rules
-  [`typescript-config`](/packages/typescript-config): Shared TypeScript config
-- **Vite:** Fast development server and build tool.
-- **Tailwind CSS:** Utility-first CSS framework for styling.
-- **TypeScript:** Extends shared config from `/packages/typescript-config`.
 
 ---
 
