@@ -4,7 +4,11 @@ import {
     commentStatusChangeBySchema,
     commentStatusSchema,
 } from '../types/types'
-import { containsBannedWords, containsSuspectWords } from '../utils/helpers'
+import {
+    containsBannedWords,
+    containsSuspectWords,
+    parseStringOrNumber,
+} from '../utils/helpers'
 import { logger } from '../logger'
 const prisma = new PrismaClient()
 export const commentsRouter = Router()
@@ -62,20 +66,32 @@ commentsRouter.get('/', async (req, res) => {
 })
 // GET /comments/:articleId
 commentsRouter.get('/:articleId', async (req, res) => {
-    const id = parseInt(req.params.articleId)
+    const id = req.params.articleId
     if (!id) {
         res.status(400).json({ error: 'Invalid article ID' })
         return
     }
     try {
+        // Check if the articleId is numeric or a string
+        const articleId = parseStringOrNumber(id)
+        const isIdNumeric = typeof articleId === 'number'
+
         const comments = await prisma.comment.findMany({
             where: {
-                article: { id },
-                status: 'APPROVED', // Only fetch approved comments
+                article: {
+                    articleId: isIdNumeric ? undefined : articleId,
+                    id: isIdNumeric ? articleId : undefined,
+                },
+                status: { in: ['APPROVED', 'FLAGGED'] }, // Only fetch approved or flagged comments
             },
             include: {
                 author: true,
                 likes: {
+                    include: {
+                        user: true,
+                    },
+                },
+                flags: {
                     include: {
                         user: true,
                     },
@@ -174,6 +190,10 @@ commentsRouter.post('/', async (req, res) => {
     }
 
     try {
+        // Check if the articleId is numeric or a string
+        const parsedId = parseStringOrNumber(articleId)
+        const isIdNumeric = typeof parsedId === 'number'
+
         const author = await prisma.user.findUnique({
             where: { id: authorId, email: authorEmail },
         })
@@ -181,6 +201,17 @@ commentsRouter.post('/', async (req, res) => {
             res.status(404).json({ error: 'Author not found' })
             return
         }
+        const article = await prisma.article.findUnique({
+            where: {
+                id: isIdNumeric ? parsedId : undefined,
+                articleId: isIdNumeric ? undefined : parsedId,
+            },
+        })
+        if (!article) {
+            res.status(404).json({ error: 'Article not found' })
+            return
+        }
+
         const shouldPreModerate = containsSuspectWords(content)
         const shouldReject = containsBannedWords(content)
         const commentStatusInfo: Partial<Comment> | undefined = shouldReject
@@ -195,7 +226,7 @@ commentsRouter.post('/', async (req, res) => {
             data: {
                 content,
                 authorId: author.id,
-                articleId,
+                articleId: article.id,
                 ...commentStatusInfo,
             },
         })
@@ -237,6 +268,10 @@ commentsRouter.post('/:id/reply', async (req, res) => {
     }
 
     try {
+        // Check if the articleId is numeric or a string
+        const parsedId = parseStringOrNumber(articleId)
+        const isIdNumeric = typeof parsedId === 'number'
+
         const author = await prisma.user.findUnique({
             where: { id: authorId, email: authorEmail },
         })
@@ -244,9 +279,21 @@ commentsRouter.post('/:id/reply', async (req, res) => {
             res.status(404).json({ error: 'Author not found' })
             return
         }
+
+        const article = await prisma.article.findUnique({
+            where: {
+                id: isIdNumeric ? parsedId : undefined,
+                articleId: isIdNumeric ? undefined : parsedId,
+            },
+        })
+        if (!article) {
+            res.status(404).json({ error: 'Article not found' })
+            return
+        }
+
         const newReply = await prisma.comment.create({
             data: {
-                articleId,
+                articleId: article.id,
                 content,
                 authorId: author.id,
                 parentId,

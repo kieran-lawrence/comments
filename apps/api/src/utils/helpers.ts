@@ -23,3 +23,9 @@ export const containsSuspectWords = (comment: string): boolean => {
 export const containsBannedWords = (comment: string): boolean => {
     return bannedRegex.test(comment)
 }
+
+/** Returns the input as a string or number, depending on its content */
+export const parseStringOrNumber = (input: string): string | number => {
+    const parsed = Number(input)
+    return isNaN(parsed) ? input : parsed
+}

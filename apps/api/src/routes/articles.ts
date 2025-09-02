@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { PrismaClient, Article } from '@prisma/client'
 import { articleCommentingStatusSchema } from '../types/types'
+import { parseStringOrNumber } from '../utils/helpers'
 
 const prisma = new PrismaClient()
 export const articlesRouter = Router()
@@ -58,15 +59,21 @@ articlesRouter.get('/', async (req, res) => {
 
 // GET /articles/:id/count
 articlesRouter.get('/:id/count', async (req, res) => {
-    const articleId = parseInt(req.params.id)
-    if (!articleId) {
+    const id = req.params.id
+    if (!id) {
         res.status(400).json({ error: 'Invalid article ID' })
         return
     }
 
     try {
+        // Check if the articleId is numeric or a string
+        const articleId = parseStringOrNumber(id)
+        const isIdNumeric = typeof articleId === 'number'
         const article = await prisma.article.findUnique({
-            where: { id: articleId },
+            where: {
+                articleId: isIdNumeric ? undefined : articleId,
+                id: isIdNumeric ? articleId : undefined,
+            },
         })
         if (article && article.status === 'CLOSED') {
             res.status(204).json({
@@ -74,9 +81,13 @@ articlesRouter.get('/:id/count', async (req, res) => {
             })
             return
         }
+        if (!article) {
+            res.status(404).json({ error: 'Article not found' })
+            return
+        }
         const commentCount = await prisma.comment.count({
             where: {
-                articleId,
+                articleId: article.id,
                 status: 'APPROVED', // Count only approved comments
             },
         })

@@ -50,7 +50,7 @@ model UserIgnoredUsers {
 
 model Article {
   id           Int                     @id @default(autoincrement())
-  articleId    String
+  articleId    String                  @unique
   articleUrl   String
   articleTitle String
   status       ArticleCommentingStatus @default(OPEN)
