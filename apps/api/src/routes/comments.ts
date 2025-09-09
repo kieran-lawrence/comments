@@ -492,27 +492,32 @@ commentsRouter.post('/:id/like', async (req, res) => {
             },
         })
 
+        let newLikeCount = comment.likeCount
+
+        // If the user has already liked, unlike
         if (existingLike) {
-            // User already liked this comment
-            res.status(409).json({
-                error: 'User has already liked this comment',
+            await prisma.commentLike.delete({
+                where: {
+                    id: existingLike.id,
+                },
             })
-            return
+            newLikeCount = newLikeCount - 1
+        } else {
+            // Create the like record
+            await prisma.commentLike.create({
+                data: {
+                    userId: user.id,
+                    commentId: commentId,
+                },
+            })
+            newLikeCount = newLikeCount + 1
         }
 
-        // Create the like record
-        await prisma.commentLike.create({
-            data: {
-                userId: user.id,
-                commentId: commentId,
-            },
-        })
-
-        // Increment the like count
+        // Update the like count
         const updatedComment = await prisma.comment.update({
             where: { id: comment.id },
             data: {
-                likeCount: comment.likeCount + 1,
+                likeCount: newLikeCount,
             },
         })
         res.status(200).json(updatedComment)
