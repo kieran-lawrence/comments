@@ -83,16 +83,17 @@ model Comment {
 }
 
 model CommentStatusChanges {
-  id            Int                   @id @default(autoincrement())
-  comment       Comment               @relation(fields: [commentId], references: [id])
-  commentId     Int
-  oldStatus     CommentStatus
-  newStatus     CommentStatus
-  changedBy     CommentStatusChangeBy @default(SYSTEM)
-  changedByUser User?                 @relation(fields: [changedById], references: [id], onDelete: Restrict)
-  changedById   String?
-  changedReason String?
-  changedAt     DateTime              @default(now())
+  id             Int                   @id @default(autoincrement())
+  comment        Comment               @relation(fields: [commentId], references: [id])
+  commentId      Int
+  oldStatus      CommentStatus
+  newStatus      CommentStatus
+  changedBy      CommentStatusChangeBy @default(SYSTEM)
+  changedByUser  User?                 @relation(fields: [changedById], references: [id], onDelete: Restrict)
+  changedById    String?
+  changedReason  String?
+  changedDetails String?
+  changedAt      DateTime              @default(now())
 }
 
 model CommentLike {

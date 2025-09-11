@@ -360,8 +360,14 @@ commentsRouter.patch('/:id', async (req, res) => {
 
 // PATCH /comments/:id/status
 commentsRouter.patch('/:id/status', async (req, res) => {
-    const { status, changedById, changedByEmail, changedReason, changedBy } =
-        req.body
+    const {
+        status,
+        changedById,
+        changedByEmail,
+        changedReason,
+        changedBy,
+        changedDetails,
+    } = req.body
     const commentId = parseInt(req.params.id)
 
     if (!commentId) {
@@ -395,6 +401,14 @@ commentsRouter.patch('/:id/status', async (req, res) => {
         const changedByUser = await prisma.user.findUnique({
             where: { email: changedByEmail, id: changedById },
         })
+
+        // Don't allow status change if the new status is the same as the current status
+        if (comment.status === newStatus) {
+            res.status(204).json(
+                `Comment already has status: ${newStatus}, no changes made.`,
+            )
+            return
+        }
         // Update the CommentStatusChanges table
         await prisma.commentStatusChanges.create({
             data: {
@@ -403,6 +417,7 @@ commentsRouter.patch('/:id/status', async (req, res) => {
                 newStatus,
                 changedById: changedByUser?.id, // Optional user ID for the change
                 changedReason, // Optional reason for the change
+                changedDetails, // Optional details for the change
                 changedBy: changedByParsed, // Defaults to 'SYSTEM' if not provided
             },
         })
