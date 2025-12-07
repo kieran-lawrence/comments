@@ -34,7 +34,7 @@ export const BarChartComponent = ({
                     axisLine={false}
                     tickFormatter={(value) => value.slice(0, 3)}
                 />
-                <YAxis width={10} />
+                <YAxis width={20} />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar
                     dataKey="members"

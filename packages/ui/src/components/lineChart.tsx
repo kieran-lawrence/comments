@@ -38,8 +38,9 @@ export const LineChartComponent = ({
                         accessibilityLayer
                         data={chartData}
                         margin={{
-                            left: 12,
-                            right: 12,
+                            left: 20,
+                            right: 20,
+                            top: 5,
                         }}
                     >
                         <CartesianGrid vertical={false} />

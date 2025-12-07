@@ -22,6 +22,10 @@ articlesRouter.get('/', async (req, res) => {
                     include: {
                         author: true,
                     },
+                    take: 5,
+                    orderBy: {
+                        createdAt: 'desc',
+                    },
                 },
                 author: true,
             },

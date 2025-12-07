@@ -123,7 +123,7 @@ statisticsRouter.get('/', async (req, res) => {
         res.status(200).json({
             // Engagement Summary
             newCommentsToday: newCommentsToday.length,
-            pendingComments: newCommentsToday.filter(
+            pendingComments: allComments.filter(
                 (comment) => comment.status === 'PENDING',
             ).length,
             totalComments: allComments.map((comment) => {

@@ -131,7 +131,7 @@ const ArticleTableRow = ({
                     Recent comments
                 </h3>
                 {article.comments.length > 0 ? (
-                    article.comments.slice(0, 5).map((comment) => (
+                    article.comments.map((comment) => (
                         <div
                             key={comment.id}
                             className="flex items-center gap-2 bg-bg-card-alt rounded-sm py-2 px-1.5"
