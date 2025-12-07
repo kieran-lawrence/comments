@@ -4,8 +4,8 @@ export const SiteIcon = ({ site }: { site: string }) => {
         default:
             return (
                 <svg
-                    width="141"
-                    height="149"
+                    width="38"
+                    height="38"
                     viewBox="0 0 141 149"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
